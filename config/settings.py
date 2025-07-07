@@ -8,6 +8,11 @@ SECRET_KEY = 'django-insecure-8l8o(-2su$6t%k424293i#x672q0$*^itfyi9r32$8j-igo7zf
 DEBUG = True
 
 ALLOWED_HOSTS = []
+AUTHENTICATION_BACKENDS = [
+    'app.auth_backends.EmailBackend',  # caminho para seu backend personalizado
+    'django.contrib.auth.backends.ModelBackend',  # mantém o backend padrão
+]
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',

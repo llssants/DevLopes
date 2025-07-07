@@ -1,0 +1,27 @@
+{% extends 'dashboard.html' %}
+{% block title %}Reuniões - DevLopes{% endblock %}
+{% block content %}
+<h1>Reuniões</h1>
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Projeto</th>
+      <th>Data</th>
+      <th>Hora</th>
+      <th>Plataforma</th>
+      <th>Link</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in reunioes %}
+      <tr>
+        <td>{{ r.projeto.titulo }}</td>
+        <td>{{ r.data }}</td>
+        <td>{{ r.hora }}</td>
+        <td>{{ r.plataforma }}</td>
+        <td><a href="{{ r.link }}" target="_blank">Acessar</a></td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

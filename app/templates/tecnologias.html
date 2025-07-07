@@ -1,0 +1,10 @@
+{% extends 'dashboard.html' %}
+{% block title %}Tecnologias - DevLopes{% endblock %}
+{% block content %}
+<h1>Tecnologias</h1>
+<ul class="list-group">
+  {% for t in tecnologias %}
+    <li class="list-group-item">{{ t.nome }}</li>
+  {% endfor %}
+</ul>
+{% endblock %}

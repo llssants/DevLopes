@@ -16,7 +16,7 @@ class Usuario(models.Model):  # RF01
 
     nome = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
-    senha = models.CharField(max_length=100)
+    senha = models.CharField(max_length=100)  # Agora será salvo como hash
     telefone = models.CharField(max_length=15)
     tipo_usuario = models.CharField(max_length=10, choices=TIPO_USUARIO_CHOICES)
     cpf_cnpj = models.CharField(max_length=18, unique=True)
@@ -24,6 +24,7 @@ class Usuario(models.Model):  # RF01
 
     def __str__(self):
         return self.nome
+
 
 
 class Projeto(models.Model):  # RF02

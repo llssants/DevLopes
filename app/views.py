@@ -1,19 +1,37 @@
+from django.shortcuts import render, redirect
+from django.views import View
+from django.contrib import messages
+from django.contrib.auth.hashers import make_password, check_password
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import *
-from django.views import View
 from django.contrib import messages
-
-from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
-from django.contrib import messages
-from django.views import View
-from .models import Usuario, Cidade
 from django.contrib.auth.models import User
 
-class IndexView(View):
-    def get(self, request):
-        return render(request, 'index.html')
 
+
+class LoginView(View):
+    def get(self, request):
+        return render(request, 'login.html')  # ou 'index.html' se for o mesmo
+
+    def post(self, request):
+        email = request.POST.get('email')
+        senha = request.POST.get('senha')
+
+        try:
+            usuario = Usuario.objects.get(email=email)
+            if check_password(senha, usuario.senha):
+                request.session['usuario_id'] = usuario.id
+                request.session['usuario_nome'] = usuario.nome
+                return redirect('dashboard')
+            else:
+                messages.error(request, "Email ou senha inválidos.")
+                return redirect('login')
+        except Usuario.DoesNotExist:
+            messages.error(request, "Email ou senha inválidos.")
+            return redirect('login')
+
+        
 class CadastroView(View):
     def get(self, request):
         return render(request, 'cadastro.html')
@@ -30,10 +48,12 @@ class CadastroView(View):
             messages.error(request, "Email já cadastrado.")
             return redirect('cadastro')
 
+        senha_hash = make_password(senha)
+
         Usuario.objects.create(
             nome=nome,
             email=email,
-            senha=senha,
+            senha=senha_hash,
             telefone=telefone,
             tipo_usuario=tipo_usuario,
             cpf_cnpj=cpf_cnpj
@@ -41,30 +61,37 @@ class CadastroView(View):
         messages.success(request, "Cadastro realizado com sucesso. Faça login.")
         return redirect('index')
 
-class LoginView(View):
-    def post(self, request):
-        email = request.POST.get('email')
-        senha = request.POST.get('senha')
 
-        try:
-            usuario = Usuario.objects.get(email=email, senha=senha)
-            request.session['usuario_id'] = usuario.id
-            request.session['usuario_nome'] = usuario.nome
-            return redirect('dashboard')
-        except Usuario.DoesNotExist:
-            messages.error(request, "Email ou senha inválidos.")
-            return redirect('index')
 
 def dashboard_view(request):
     if not request.session.get('usuario_id'):
-        return redirect('index')
-    nome = request.session.get('usuario_nome')
-    return render(request, 'dashboard.html', {'nome': nome})
+        return redirect('login')
 
-    # def post(self, request):
-    #     # Por enquanto não faz nada com POST, mas pode receber formulários depois
-    #     return redirect('index')  # redireciona para a própria página
-# app/views.py (acima das outras)
+    usuario = Usuario.objects.get(id=request.session['usuario_id'])
+    nome = usuario.nome
+
+    return render(request, 'dashboard.html', {
+        'nome': nome,
+        'usuario': usuario,
+    })
+
+
 class ApresentacaoView(View):
     def get(self, request):
         return render(request, 'apresentacao.html')
+from django.contrib.auth import logout
+
+def logout_view(request):
+    logout(request)  # limpa sessão e desloga o usuário
+    return redirect('login')  # redireciona para login
+
+
+class ProjetoListView(View):
+    model = Projeto
+    template_name = 'projetos.html'
+    context_object_name = 'projetos'
+
+class UsuarioListView(View):
+    model = Usuario
+    template_name = 'usuarios.html'
+    context_object_name = 'usuarios'

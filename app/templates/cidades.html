@@ -1,0 +1,21 @@
+{% extends 'dashboard.html' %}
+{% block title %}Cidades - DevLopes{% endblock %}
+{% block content %}
+<h1>Cidades</h1>
+<table class="table table-sm table-hover">
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>UF</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for c in cidades %}
+      <tr>
+        <td>{{ c.nome }}</td>
+        <td>{{ c.uf }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

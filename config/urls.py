@@ -1,12 +1,15 @@
 # config/urls.py
 from django.contrib import admin
 from django.urls import path
-from app.views import ApresentacaoView, IndexView, CadastroView, LoginView, dashboard_view
+from app.views import *
+
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', ApresentacaoView.as_view(), name='apresentacao'),  #  página inicial
-    path('login/', IndexView.as_view(), name='login'),          # login é /login
+    path('admin/', admin.site.urls),   # ESSA LINHA HABILITA O ADMIN DO DJANGO
+    path('', ApresentacaoView.as_view(), name='index'),  # página de apresentação
+    path('login/', LoginView.as_view(), name='login'),   # tela de login
     path('cadastro/', CadastroView.as_view(), name='cadastro'),
     path('dashboard/', dashboard_view, name='dashboard'),
+    path('logout/', logout_view, name='logout'),
+
 ]

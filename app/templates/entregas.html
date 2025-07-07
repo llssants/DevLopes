@@ -1,0 +1,25 @@
+{% extends 'dashboard.html' %}
+{% block title %}Entregas - DevLopes{% endblock %}
+{% block content %}
+<h1>Entregas</h1>
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>Projeto</th>
+      <th>Data Entrega</th>
+      <th>Link Demo</th>
+      <th>Comentários</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for e in entregas %}
+      <tr>
+        <td>{{ e.projeto.titulo }}</td>
+        <td>{{ e.data_entrega }}</td>
+        <td><a href="{{ e.link_demo }}" target="_blank">Demo</a></td>
+        <td>{{ e.comentarios|default:"-" }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'dashboard.html' %}
+{% block title %}Usuários - DevLopes{% endblock %}
+{% block content %}
+<h1>Usuários</h1>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>Email</th>
+      <th>Telefone</th>
+      <th>Ocupação</th>
+      <th>CPF/CNPJ</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for u in usuarios %}
+    <tr>
+      <td>{{ u.nome }}</td>
+      <td>{{ u.email }}</td>
+      <td>{{ u.telefone }}</td>
+      <td>{{ u.get_tipo_usuario_display }}</td>
+      <td>{{ u.cpf_cnpj }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

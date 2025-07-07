@@ -1,0 +1,25 @@
+{% extends 'dashboard.html' %}
+{% block title %}Progresso do Aluno - DevLopes{% endblock %}
+{% block content %}
+<h1>Progresso dos Alunos</h1>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Aluno</th>
+      <th>Projeto</th>
+      <th>Habilidades Desenvolvidas</th>
+      <th>Observações</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for p in progresso %}
+      <tr>
+        <td>{{ p.aluno.nome }}</td>
+        <td>{{ p.projeto.titulo }}</td>
+        <td>{{ p.habilidades_desenvolvidas }}</td>
+        <td>{{ p.observacoes|default:"-" }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

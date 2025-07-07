@@ -1,0 +1,25 @@
+{% extends 'dashboard.html' %}
+{% block title %}Feedbacks - DevLopes{% endblock %}
+{% block content %}
+<h1>Feedbacks</h1>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Projeto</th>
+      <th>Cliente</th>
+      <th>Nota</th>
+      <th>Comentário</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for f in feedbacks %}
+      <tr>
+        <td>{{ f.projeto.titulo }}</td>
+        <td>{{ f.cliente.nome }}</td>
+        <td>{{ f.nota }}</td>
+        <td>{{ f.comentario|default:"-" }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
