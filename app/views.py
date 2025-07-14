@@ -1,13 +1,12 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.contrib import messages
-from django.contrib.auth.hashers import make_password, check_password
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import *
-from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth.models import User
-
+from .models import *
+from django.http import JsonResponse
+import json
 
 
 class LoginView(View):
@@ -86,12 +85,53 @@ def logout_view(request):
     return redirect('login')  # redireciona para login
 
 
-class ProjetoListView(View):
-    model = Projeto
-    template_name = 'projetos.html'
-    context_object_name = 'projetos'
-
 class UsuarioListView(View):
     model = Usuario
     template_name = 'usuarios.html'
     context_object_name = 'usuarios'
+
+
+def projetos(request):
+    projetos = Projeto.objects.all()
+    return render(request, 'projetos.html', {'projetos': projetos})
+
+def registrar_projeto(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        projeto = Projeto.objects.create(
+            titulo=data['titulo'],
+            descricao=data['descricao'],
+            status=data['status'],
+            solicitante=data.get('solicitante', 'Anônimo'),
+            detalhes=data.get('detalhes', '')
+        )
+        return JsonResponse({
+            'id': projeto.id,
+            'titulo': projeto.titulo,
+            'descricao': projeto.descricao,
+            'status': projeto.status,
+            'solicitante': projeto.solicitante,
+            'detalhes': projeto.detalhes
+        })
+
+def tecnologias(request):
+    tecnologias = Tecnologia.objects.all()
+    tipo_usuario = None
+
+    if request.user.is_authenticated:
+        try:
+            usuario = Usuario.objects.get(email=request.user.email)
+            tipo_usuario = usuario.tipo_usuario
+        except Usuario.DoesNotExist:
+            pass
+
+    return render(request, 'tecnologias.html', {
+        'tecnologias': tecnologias,
+        'tipo_usuario': tipo_usuario,
+    })
+
+def reunioes(request):
+    return render(request, 'reunioes.html')
+
+def chat_view(request):
+    return render(request, 'chat.html')
