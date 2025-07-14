@@ -5,9 +5,41 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth.models import User
 from .models import *
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 import json
 
+def tecnologias(request):
+    if not request.session.get('usuario_id'):
+        return redirect('login')  # ou 'index', se preferir
+
+    tecnologias = Tecnologia.objects.all()
+
+    try:
+        usuario = Usuario.objects.get(id=request.session['usuario_id'])
+    except Usuario.DoesNotExist:
+        usuario = None
+
+    context = {
+        'tecnologias': tecnologias,
+        'usuario': usuario,
+    }
+    return render(request, 'tecnologias.html', context)
+
+def lista_tecnologias(request):
+    tecnologias = Tecnologia.objects.all()
+    return render(request, 'tecnologias.html', {'tecnologias': tecnologias})
+
+def registrar_tecnologia(request):
+    if request.method == 'POST':
+        nome = request.POST.get('nome')
+        if nome:
+            tecnologia = Tecnologia(nome=nome)
+            tecnologia.save()
+            return JsonResponse({'status': 'success', 'nome': tecnologia.nome})
+        else:
+            return JsonResponse({'status': 'error', 'msg': 'Nome não informado'})
+    return JsonResponse({'status': 'error', 'msg': 'Método inválido'})
 
 class LoginView(View):
     def get(self, request):
@@ -91,7 +123,27 @@ class UsuarioListView(View):
     context_object_name = 'usuarios'
 
 
+
 def projetos(request):
+    if not request.session.get('usuario_id'):
+        return redirect('login')  # ou 'index', como preferir
+
+    try:
+        usuario = Usuario.objects.get(id=request.session['usuario_id'])
+    except Usuario.DoesNotExist:
+        usuario = None
+
+    projetos = Projeto.objects.all()
+    tecnologias = Tecnologia.objects.all()
+
+    context = {
+        'usuario': usuario,
+        'projetos': projetos,
+        'tecnologias': tecnologias,
+    }
+    return render(request, 'projetos.html', context)
+
+def lista_projetos(request):
     projetos = Projeto.objects.all()
     return render(request, 'projetos.html', {'projetos': projetos})
 
@@ -113,18 +165,6 @@ def registrar_projeto(request):
             'solicitante': projeto.solicitante,
             'detalhes': projeto.detalhes
         })
-
-def tecnologias(request):
-    tecnologias = Tecnologia.objects.all()
-    return render(request, 'tecnologias.html', {'tecnologias': tecnologias})
-
-def registrar_tecnologia(request):
-    if request.method == 'POST':
-        nome = request.POST.get('nome')
-        descricao = request.POST.get('descricao')
-        if nome and descricao:
-            Tecnologia.objects.create(nome=nome, descricao=descricao, ativa=True)
-        return redirect('tecnologias')
 
 def reunioes(request):
     return render(request, 'reunioes.html')

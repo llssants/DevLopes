@@ -155,42 +155,31 @@
     <h1 class="mb-4">Projetos Disponíveis</h1>
 
     <!-- LISTA DE PROJETOS -->
-    <div id="areaListaProjetos">
-      <div class="row" id="listaProjetos">
+    <!-- LISTA DE PROJETOS -->
+<div class="container mt-4" id="areaListaProjetos">
+  <div class="row">
 
-        <div class="col-md-12">
-          <div class="card-project"
-            data-titulo="Projeto Alpha"
-            data-descricao="Desenvolvimento de uma plataforma gamificada para vestibulandos."
-            data-status="Em andamento"
-            data-solicitante="João Silva"
-            data-detalhes="Sistema com ranking, missões diárias, pontuação e integração com API de questões do Enem.">
-            <div class="badge badge-info badge-status">Em andamento</div>
-            <div class="card-title">Projeto Alpha</div>
-            <div class="card-description">
-              Desenvolvimento de uma plataforma gamificada para apoio a vestibulandos com sistema de pontos e ranking.
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-12">
-          <div class="card-project"
-            data-titulo="Projeto Beta"
-            data-descricao="Aplicativo para controle de estudos e agenda personalizada."
-            data-status="Concluído"
-            data-solicitante="Maria Oliveira"
-            data-detalhes="App com notificações, sincronização e visualização mensal/diária.">
-            <div class="badge badge-secondary badge-status">Concluído</div>
-            <div class="card-title">Projeto Beta</div>
-            <div class="card-description">
-              Aplicativo móvel para controle de estudos e agenda personalizada.
-            </div>
-          </div>
-        </div>
-
+    {% for projeto in projetos %}
+    <div class="col-md-4 mb-3">
+      <div class="card-project"
+           data-titulo="{{ projeto.titulo }}"
+           data-descricao="{{ projeto.descricao }}"
+           data-status="{{ projeto.status }}"
+           data-solicitante="{{ projeto.alunos.first.nome|default:'Desconhecido' }}"
+           data-detalhes="ID: {{ projeto.id }}">
+        <h5 class="card-title">{{ projeto.titulo }}</h5>
+        <p class="card-description">{{ projeto.descricao|truncatewords:20 }}</p>
+        <span class="badge badge-status badge-info text-capitalize">{{ projeto.status }}</span>
       </div>
     </div>
+    {% empty %}
+    <p class="ml-3">Nenhum projeto cadastrado.</p>
+    {% endfor %}
 
+  </div>
+</div>
+
+    
    <!-- DETALHES DO PROJETO -->
 <div id="detalhesProjeto" style="display: none;">
   <div class="mb-3">
@@ -221,8 +210,9 @@
 
 
     <!-- Botão flutuante -->
-  <button id="btn-add-project" title="Registrar novo projeto">+</button>
-
+    {% if usuario.tipo_usuario == 'cliente' %}
+    <button id="btn-add-project" title="Registrar nova tecnologia">+</button>
+    {% endif %}
     <!-- Modal Registrar Projeto -->
     <div class="modal fade" id="modalRegistrarProjeto" tabindex="-1" aria-labelledby="modalRegistrarProjetoLabel"
       aria-hidden="true">
@@ -270,12 +260,26 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"></script>
 
    <script>
-  const btnAddProject = document.getElementById('btn-add-project');
-const isCliente = true; // ou false, conforme seu caso
+    document.querySelectorAll('.card-project').forEach(card => {
+  card.addEventListener('click', function () {
+    document.getElementById('detalhesTitulo').innerText = this.getAttribute('data-titulo');
+    document.getElementById('detalhesDescricao').innerText = this.getAttribute('data-descricao');
+    document.getElementById('detalhesStatus').innerText = this.getAttribute('data-status');
+    document.getElementById('detalhesSolicitante').innerText = this.getAttribute('data-solicitante');
+    document.getElementById('detalhesDetalhes').innerText = this.getAttribute('data-detalhes');
 
-  if (isCliente) {
-      document.getElementById('btn-add-project').style.display = 'block';
-    }
+    document.getElementById('areaListaProjetos').style.display = 'none';
+    document.getElementById('detalhesProjeto').style.display = 'block';
+  });
+});
+
+function voltarLista() {
+  document.getElementById('detalhesProjeto').style.display = 'none';
+  document.getElementById('areaListaProjetos').style.display = 'block';
+}
+
+  const btnAddProject = document.getElementById('btn-add-project');
+
   
   if (btnAddProject) {
     btnAddProject.addEventListener('click', () => {
