@@ -116,19 +116,15 @@ def registrar_projeto(request):
 
 def tecnologias(request):
     tecnologias = Tecnologia.objects.all()
-    tipo_usuario = None
+    return render(request, 'tecnologias.html', {'tecnologias': tecnologias})
 
-    if request.user.is_authenticated:
-        try:
-            usuario = Usuario.objects.get(email=request.user.email)
-            tipo_usuario = usuario.tipo_usuario
-        except Usuario.DoesNotExist:
-            pass
-
-    return render(request, 'tecnologias.html', {
-        'tecnologias': tecnologias,
-        'tipo_usuario': tipo_usuario,
-    })
+def registrar_tecnologia(request):
+    if request.method == 'POST':
+        nome = request.POST.get('nome')
+        descricao = request.POST.get('descricao')
+        if nome and descricao:
+            Tecnologia.objects.create(nome=nome, descricao=descricao, ativa=True)
+        return redirect('tecnologias')
 
 def reunioes(request):
     return render(request, 'reunioes.html')

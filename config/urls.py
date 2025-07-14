@@ -13,6 +13,7 @@ urlpatterns = [
     path('logout/', logout_view, name='logout'),
     path('projetos.html', projetos, name='projetos'),
     path('tecnologias.html', tecnologias, name='tecnologias'),
+    path('registrar-tecnologia/', registrar_tecnologia, name='registrar_tecnologia'),
     path('reunioes.html', reunioes, name='reunioes'),
     path('chat/', chat_view, name='chat'),
     path('registrar_projeto/', registrar_projeto, name='registrar_projeto'),

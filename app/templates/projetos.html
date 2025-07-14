@@ -144,7 +144,7 @@
           <li class="nav-item"><a class="nav-link" href="{% url 'projetos' %}">Projetos</a></li>
           <li class="nav-item"><a class="nav-link" href="{% url 'tecnologias' %}">Tecnologias</a></li>
           <li class="nav-item"><a class="nav-link" href="{% url 'reunioes' %}">Reuniões</a></li>
-      <li class="nav-item"><a class="nav-link" href="#">Sair</a></li>
+      <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Sair</a></li>
     </ul>
   </div>
 </nav>
@@ -221,9 +221,7 @@
 
 
     <!-- Botão flutuante -->
-{% if user.is_authenticated and user.tipo == 'cliente' %}
   <button id="btn-add-project" title="Registrar novo projeto">+</button>
-{% endif %}
 
     <!-- Modal Registrar Projeto -->
     <div class="modal fade" id="modalRegistrarProjeto" tabindex="-1" aria-labelledby="modalRegistrarProjetoLabel"
@@ -273,7 +271,12 @@
 
    <script>
   const btnAddProject = document.getElementById('btn-add-project');
+const isCliente = true; // ou false, conforme seu caso
 
+  if (isCliente) {
+      document.getElementById('btn-add-project').style.display = 'block';
+    }
+  
   if (btnAddProject) {
     btnAddProject.addEventListener('click', () => {
       $('#modalRegistrarProjeto').modal('show');
