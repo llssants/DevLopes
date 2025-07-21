@@ -3,181 +3,350 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>Seja bem-vindo DevLopes</title>
+  <title>Comunidade DevLopes</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
     body {
       margin: 0;
-      background-color: #c5d5eb;
-      background-size: cover;
       font-family: 'Segoe UI', sans-serif;
-      color: #fff;
-    }
+      color: #ffffff;
+      background: radial-gradient(circle at center, #2a2a84, #302b63, #24243e);
 
-    .overlay {
       min-height: 100vh;
-      padding-top: 80px;
     }
 
-    .navbar {
-      background-color: rgba(0, 60, 150, 0.9) !important;
+    nav.navbar {
+      background-color: rgba(38, 38, 147, 0.95) !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
     }
 
     .navbar-brand,
     .nav-link {
       color: #fff !important;
+      font-weight: 600;
+      text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
     }
 
-    .dropdown-item {
-      color: black;
+    .hero {
+      text-align: center;
+      padding: 100px 20px;
+      background: radial-gradient(circle at center, #2a2a84 0%, transparent 70%);
     }
 
-    .profile-data {
-      background: rgba(0, 123, 255, 0.2);
-      border-radius: 12px;
-      padding: 20px;
-      margin-top: 40px;
-      box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
-      backdrop-filter: blur(10px);
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: bold;
+      text-shadow: 0 0 20px #00bcd4;
+    }
+
+    .hero span {
+      color: #00bcd4;
+    }
+
+    .comunidade-btn {
+      background: #00bcd4;
       color: #fff;
+      padding: 12px 28px;
+      border-radius: 30px;
+      font-weight: bold;
+      border: none;
+      margin-top: 30px;
+      box-shadow: 0 0 15px #00bcd4;
+      transition: transform 0.2s ease;
+      background: radial-gradient(circle at center, #2a2a84 0%, transparent 70%);
+
     }
 
-    .carousel-container {
-      background: rgba(0, 123, 255, 0.2);
+    .comunidade-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px #00ffff;
+    }
+
+    .features {
+      padding: 60px 20px;
+    }
+
+    .feature-box {
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 123, 255, 0.4);
+      height: 100%;
+      backdrop-filter: blur(4px);
+      transition: 0.3s ease;
+    }
+
+    .feature-box:hover {
+      transform: scale(1.03);
+    }
+
+    .feature-box h4 {
+      color: #aee6ff;
+      text-shadow: 0 0 6px #2196f3;
+    }
+
+
+    .depoimentos-section {
+      margin: 0 auto;
+      padding: 30px 20px;
       border-radius: 16px;
+      box-shadow: 0 0 20px rgba(0, 217, 255, 0.1);
+      text-align: center;
+    }
+
+    .depoimentos-title {
+      font-size: 2rem;
+      margin-bottom: 40px;
+      color: #42919d;
+      font-weight: bold;
+    }
+
+    .swiper-slide {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    blockquote {
       padding: 30px;
-      margin-top: 40px;
-      box-shadow: 0 4px 20px rgba(0, 123, 255, 0.5);
+      background: rgba(255, 255, 255, 0.05);
+      border-left: 5px solid #00ffff;
+      border-radius: 10px;
+      font-style: italic;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 15px #00ffff33;
+      color: #ccc;
     }
 
-    .carousel-caption h5,
-    .carousel-caption p {
-      color: #fff;
-      text-shadow: 0 0 10px #003973;
+    blockquote footer {
+      margin-top: 15px;
+      font-style: normal;
+      font-weight: bold;
+      color: #ccc;
     }
 
-    .carousel-item img {
-      border-radius: 12px;
-      object-fit: cover;
-      height: 350px;
-    }
+   .sobre {
+  padding: 60px 20px;
+  color: #fff;
+  text-align: center;
+}
+
+.sobre h2 {
+  font-size: 2.2rem;
+  margin-bottom: 40px;
+  color: #00d9ff;
+  text-shadow: 0 0 10px #00d9ff88;
+}
+
+.sobre-conteudo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap; /* responsivo */
+  max-width: 1000px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.sobre-conteudo img {
+  width: 400px;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 217, 255, 0.2);
+}
+
+.sobre-conteudo p {
+  max-width: 500px;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
 
     footer {
+      background-color: rgba(18, 18, 50, 0.8);
+      padding: 30px 0;
       text-align: center;
-      margin-top: 50px;
-      color: #bbb;
+      color: #aaa;
     }
 
     footer i {
-      font-size: 1.2em;
+      font-size: 1.5rem;
       margin: 0 10px;
-      color: #fff;
+      color: #00bcd4;
+    }
+
+    /* Ajuste global de links */
+    a {
+      transition: 0.3s;
+    }
+
+    a:hover {
+      color: #00ffff !important;
+      text-shadow: 0 0 6px #00ffff;
     }
   </style>
 </head>
 
 <body>
-  <div class="overlay">
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-md navbar-dark fixed-top">
-      <a class="navbar-brand" href="#">DevLopes</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMain">
-        <span class="navbar-toggler-icon"></span>
-      </button>
 
-      <div class="collapse navbar-collapse" id="navbarMain">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
-          <li class="nav-item"><a class="nav-link" href="{% url 'projetos' %}">Projetos</a></li>
-          <li class="nav-item"><a class="nav-link" href="{% url 'tecnologias' %}">Tecnologias</a></li>
-          <li class="nav-item"><a class="nav-link" href="{% url 'reunioes' %}">Reuniões</a></li>
-        </ul>
-        <ul class="navbar-nav ml-auto">
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="perfilDropdown" role="button" data-toggle="dropdown">
-              {{ nome }}
-            </a>
-            <div class="dropdown-menu dropdown-menu-right">
-              <a class="dropdown-item" href="#" id="btn-ver-perfil">Ver Perfil</a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="{% url 'logout' %}">Sair</a>
-            </div>
-          </li>
-        </ul>
-      </div>
-    </nav>
+  <!-- Navbar Bootstrap -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <a class="navbar-brand" href="#">DevLopes</a>
 
-    <!-- Conteúdo -->
-    <div class="container text-center">
-      <h1 class="mt-4">Portal DevLopes</h1>
-      <p>Escolha uma categoria abaixo:</p>
+    <!-- Botão hamburguer -->
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+      aria-controls="navbarNav" aria-expanded="false" aria-label="Alternar navegação">
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-      <!-- Carrossel -->
-      <div class="carousel-container mx-auto">
-        <div id="devCarousel" class="carousel slide" data-ride="carousel">
-          <div class="carousel-inner">
-            <div class="carousel-item active">
-              <img src="/static/img/printers.jpg" class="d-block w-100" alt="Impressoras">
-              <div class="carousel-caption d-none d-md-block">
-                <h5>Impressoras</h5>
-                <p>Gerencie seus dispositivos de impressão.</p>
-              </div>
-            </div>
-            <div class="carousel-item">
-              <img src="/static/img/monitors.jpg" class="d-block w-100" alt="Monitores">
-              <div class="carousel-caption d-none d-md-block">
-                <h5>Monitores</h5>
-                <p>Veja detalhes de exibição e resolução.</p>
-              </div>
-            </div>
-            <div class="carousel-item">
-              <img src="/static/img/headsets.jpg" class="d-block w-100" alt="Headsets">
-              <div class="carousel-caption d-none d-md-block">
-                <h5>Headsets</h5>
-                <p>Comunicação e qualidade de áudio.</p>
-              </div>
-            </div>
+    <!-- Itens do menu -->
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'projetos' %}">Projetos</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'tecnologias' %}">Tecnologias</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'reunioes' %}">Reuniões</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Sair</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1>A melhor <span>comunidade</span> de <br>Desenvolvimento Web</h1>
+    <button class="comunidade-btn">👥 COMUNIDADE WEBDEV</button>
+  </section>
+
+
+  <!-- Funcionalidades -->
+  <section class="features">
+    <div class="container">
+      <div class="row text-center">
+        <div class="col-md-4 mb-4">
+          <div class="feature-box">
+            <h4>Teste Gratuito</h4>
+            <p>Acesse conteúdos exclusivos sem custo inicial.</p>
           </div>
-          <a class="carousel-control-prev" href="#devCarousel" role="button" data-slide="prev">
-            <span class="carousel-control-prev-icon"></span>
-          </a>
-          <a class="carousel-control-next" href="#devCarousel" role="button" data-slide="next">
-            <span class="carousel-control-next-icon"></span>
-          </a>
+        </div>
+        <div class="col-md-4 mb-4">
+          <div class="feature-box">
+            <h4>Suporte via WhatsApp</h4>
+            <p>Receba ajuda direta e tire dúvidas com nossa equipe.</p>
+          </div>
+        </div>
+        <div class="col-md-4 mb-4">
+          <div class="feature-box">
+            <h4>Labs Práticos</h4>
+            <p>Resolva problemas reais com apoio técnico.</p>
+          </div>
         </div>
       </div>
-
-      <!-- Dados do perfil -->
-      <div id="perfil-info" class="profile-data mx-auto" style="display:none;">
-        <h4>Dados do Perfil</h4>
-        <p><strong>Nome:</strong> {{ nome }}</p>
-        <p><strong>Email:</strong> {{ usuario.email }}</p>
-        <p><strong>Telefone:</strong> {{ usuario.telefone }}</p>
-        <p><strong>Tipo de Usuário:</strong> {{ usuario.get_tipo_usuario_display }}</p>
-        <p><strong>CPF/CNPJ:</strong> {{ usuario.cpf_cnpj }}</p>
-        <p><strong>Cidade:</strong> {{ usuario.cidade }}</p>
-      </div>
     </div>
+  </section>
+  <!-- SwiperJS CDN (adicione no <head> do seu HTML) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
-    <footer class="mt-5">
-      <p>Siga-nos:</p>
-      <a href="#"><i class="fab fa-instagram"></i></a>
-      <a href="#"><i class="fab fa-facebook"></i></a>
-      <a href="#"><i class="fab fa-twitter"></i></a>
-    </footer>
-  </div>
+  <!-- Seção de Depoimentos -->
+  <section class="depoimentos-section">
+    <h2 class="depoimentos-title">O que dizem nossos membros</h2>
+
+    <div class="swiper depoimentos-swiper">
+      <div class="swiper-wrapper">
+        <div class="swiper-slide">
+          <blockquote>
+            <p>“Nunca imaginei que poderia evoluir tanto em tão pouco tempo. O suporte e os desafios me ajudaram a
+              conquistar meu primeiro estágio!”</p>
+            <footer>— Maria Silva, Dev Júnior</footer>
+          </blockquote>
+        </div>
+        <div class="swiper-slide">
+          <blockquote>
+            <p>“A comunidade DevLopes me ajudou a entender de verdade o mercado de desenvolvimento web. É diferente de
+              tudo que já vi.”</p>
+            <footer>— João Pereira, Estudante IF</footer>
+          </blockquote>
+        </div>
+        <div class="swiper-slide">
+          <blockquote>
+            <p>“A gamificação da plataforma me fez estudar todos os dias! Finalmente algo divertido e útil para aprender
+              programação.”</p>
+            <footer>— Larissa Costa, 3º Ano</footer>
+          </blockquote>
+        </div>
+        <div class="swiper-slide">
+          <blockquote>
+            <p>“Com o suporte da comunidade, consegui melhorar meu portfolio rapidamente.”</p>
+            <footer>— Carlos Eduardo, Freelancer</footer>
+          </blockquote>
+        </div>
+        <div class="swiper-slide">
+          <blockquote>
+            <p>“Os desafios propostos são ótimos para fixar o conteúdo e aumentar a confiança.”</p>
+            <footer>— Ana Beatriz, Estudante</footer>
+          </blockquote>
+        </div>
+      </div>
+      <!-- Paginação -->
+      <div class="swiper-pagination"></div>
+      <!-- Navegação (setas) -->
+      <div class="swiper-button-prev"></div>
+      <div class="swiper-button-next"></div>
+    </div>
+  </section>
+
+  <!-- Sobre -->
+  <section class="sobre">
+    <h2>Sobre a Comunidade</h2>
+    <img src="https://plus.unsplash.com/premium_photo-1733328013343-e5ee77acaf05?q=80&w=1332&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="">
+    <p>Somos um grupo de desenvolvedores apaixonados por ensino e colaboração. Nosso objetivo é ajudar iniciantes e
+      profissionais a crescerem juntos por meio de desafios, suporte e projetos práticos com propósito.</p>
+  </section>
+
+  <!-- Rodapé -->
+  <footer>
+    <p>Nos siga nas redes:</p>
+    <a href="#"><i class="fab fa-instagram"></i></a>
+    <a href="#"><i class="fab fa-discord"></i></a>
+    <a href="#"><i class="fab fa-linkedin"></i></a>
+    <p class="mt-3">© 2025 DevLopes. Todos os direitos reservados.</p>
+  </footer>
 
   <!-- Scripts -->
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://kit.fontawesome.com/a076d05399.js"></script>
-
   <script>
-    document.getElementById('btn-ver-perfil').addEventListener('click', function (e) {
-      e.preventDefault();
-      const perfilInfo = document.getElementById('perfil-info');
-      perfilInfo.style.display = (perfilInfo.style.display === 'none' || perfilInfo.style.display === '') ? 'block' : 'none';
+    const swiper = new Swiper('.depoimentos-swiper', {
+      slidesPerView: 3, // mostrar 3 depoimentos por vez
+      spaceBetween: 30, // espaço entre os slides (px)
+      loop: true,       // loop infinito
+      pagination: {
+        el: '.swiper-pagination',
+        clickable: true,
+      },
+      navigation: {
+        nextEl: '.swiper-button-next',
+        prevEl: '.swiper-button-prev',
+      },
+      breakpoints: {
+        // Responsividade para telas menores
+        320: {
+          slidesPerView: 1,
+          spaceBetween: 10
+        },
+        768: {
+          slidesPerView: 2,
+          spaceBetween: 20
+        },
+        1024: {
+          slidesPerView: 3,
+          spaceBetween: 30
+        }
+      }
     });
+  </script>
+
   </script>
 </body>
 
