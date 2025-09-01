@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
+
 
 class Cidade(models.Model):  # RF11
     nome = models.CharField(max_length=100)
@@ -8,24 +10,18 @@ class Cidade(models.Model):  # RF11
         return f"{self.nome} - {self.uf}"
 
 
-class Usuario(models.Model):  # RF01
-    TIPO_USUARIO_CHOICES = [
-        ('aluno', 'Aluno'),
-        ('cliente', 'Cliente'),
-    ]
-
-    nome = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
-    senha = models.CharField(max_length=100)  # Agora será salvo como hash
-    telefone = models.CharField(max_length=15)
-    tipo_usuario = models.CharField(max_length=10, choices=TIPO_USUARIO_CHOICES)
-    cpf_cnpj = models.CharField(max_length=18, unique=True)
-    cidade = models.ForeignKey(Cidade, on_delete=models.SET_NULL, null=True, blank=True)
+class Usuario(AbstractUser):
+    tipo_usuario = models.CharField(
+        max_length=20, 
+        choices=(('aluno','Aluno'),('professor','Professor')),
+        default='aluno'
+    )
+    cpf_cnpj = models.CharField(max_length=20, blank=True)
+    telefone = models.CharField(max_length=20, blank=True)
+    cidade = models.CharField(max_length=50, blank=True)
 
     def __str__(self):
-        return self.nome
-
-
+        return self.username  # ou self.nome se preferir
 
 class Projeto(models.Model):  # RF02
     STATUS_CHOICES = [
@@ -91,11 +87,19 @@ class Reuniao(models.Model):  # RF09
 
 
 class ProgressoAluno(models.Model):  # RF10
-    aluno = models.ForeignKey(Usuario, on_delete=models.CASCADE, limit_choices_to={'tipo_usuario': 'aluno'})
-    projeto = models.ForeignKey(Projeto, on_delete=models.CASCADE)
+    aluno = models.ForeignKey(
+        'Usuario', 
+        on_delete=models.CASCADE, 
+        limit_choices_to={'tipo_usuario': 'aluno'}
+    )
+    projeto = models.ForeignKey('Projeto', on_delete=models.CASCADE)
     habilidades_desenvolvidas = models.TextField()
     observacoes = models.TextField(blank=True)
+    tecnologias_usadas = models.ManyToManyField('Tecnologia', blank=True)
+    nota = models.FloatField(blank=True, null=True)  
 
     def __str__(self):
         return f"{self.aluno.nome} - {self.projeto.titulo}"
+
+
 

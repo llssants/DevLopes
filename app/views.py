@@ -9,6 +9,27 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 import json
 
+
+def progresso_aluno(request):
+    # Pega só os registros do usuário logado
+    progresso = ProgressoAluno.objects.filter(aluno=request.user)
+
+
+    linguagens_count = {}
+    desempenho_projeto = {}
+
+    for p in progresso:
+        for tecnologia in p.tecnologias_usadas.all():
+            linguagens_count[tecnologia.nome] = linguagens_count.get(tecnologia.nome, 0) + 1
+        desempenho_projeto[p.projeto.titulo] = p.nota or 0
+
+    context = {
+        'progresso': progresso,
+        'linguagens_count': linguagens_count,
+        'desempenho_projeto': desempenho_projeto,
+    }
+    return render(request, 'progresso.html', context)
+
 def tecnologias(request):
     if not request.session.get('usuario_id'):
         return redirect('login')  # ou 'index', se preferir
@@ -43,24 +64,29 @@ def registrar_tecnologia(request):
 
 class LoginView(View):
     def get(self, request):
-        return render(request, 'login.html')  # ou 'index.html' se for o mesmo
+        return render(request, 'login.html')
 
     def post(self, request):
         email = request.POST.get('email')
         senha = request.POST.get('senha')
 
+        # Como nosso User model tem email, precisamos pegar o username antes
         try:
-            usuario = Usuario.objects.get(email=email)
-            if check_password(senha, usuario.senha):
-                request.session['usuario_id'] = usuario.id
-                request.session['usuario_nome'] = usuario.nome
-                return redirect('dashboard')
-            else:
-                messages.error(request, "Email ou senha inválidos.")
-                return redirect('login')
+            usuario_obj = Usuario.objects.get(email=email)
+            username = usuario_obj.username
         except Usuario.DoesNotExist:
             messages.error(request, "Email ou senha inválidos.")
             return redirect('login')
+
+        # Autenticação usando username e senha
+        usuario = authenticate(request, username=username, password=senha)
+        if usuario is not None:
+            login(request, usuario)  # cria a sessão do usuário
+            return render(request,'dashboard.html')
+        else:
+            messages.error(request, "Email ou senha inválidos.")
+            return redirect('login')
+
 
         
 class CadastroView(View):
@@ -68,7 +94,7 @@ class CadastroView(View):
         return render(request, 'cadastro.html')
 
     def post(self, request):
-        nome = request.POST.get('nome')
+        username = request.POST.get('nome')  # será usado como username
         email = request.POST.get('email')
         senha = request.POST.get('senha')
         telefone = request.POST.get('telefone')
@@ -79,20 +105,20 @@ class CadastroView(View):
             messages.error(request, "Email já cadastrado.")
             return redirect('cadastro')
 
-        senha_hash = make_password(senha)
-
-        Usuario.objects.create(
-            nome=nome,
+        usuario = Usuario.objects.create_user(
+            username=username,  # campo obrigatório do AbstractUser
             email=email,
-            senha=senha_hash,
-            telefone=telefone,
-            tipo_usuario=tipo_usuario,
-            cpf_cnpj=cpf_cnpj
+            password=senha,     # create_user já faz hash automaticamente
         )
+
+        # Preenchendo os campos extras
+        usuario.telefone = telefone
+        usuario.tipo_usuario = tipo_usuario
+        usuario.cpf_cnpj = cpf_cnpj
+        usuario.save()
+
         messages.success(request, "Cadastro realizado com sucesso. Faça login.")
         return redirect('index')
-
-
 
 def dashboard_view(request):
     if not request.session.get('usuario_id'):
@@ -171,3 +197,6 @@ def reunioes(request):
 
 def chat_view(request):
     return render(request, 'chat.html')
+def teste_perfil(request):
+    projetos = Projeto.objects.all()
+    return render(request, 'teste.html', {'teste': teste_perfil})

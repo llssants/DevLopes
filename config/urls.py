@@ -16,5 +16,7 @@ urlpatterns = [
     path('registrar-tecnologia/', registrar_tecnologia, name='registrar_tecnologia'),
     path('reunioes.html', reunioes, name='reunioes'),
     path('chat/', chat_view, name='chat'),
+    path('teste/', teste_perfil, name='teste'),
+    path('progresso/', progresso_aluno, name='progresso_aluno'),
     path('registrar_projeto/', registrar_projeto, name='registrar_projeto'),
 ]

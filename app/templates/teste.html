@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-blue-100 font-sans">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-purple-800 text-white flex flex-col justify-between p-4">
+      <div>
+        <h1 class="text-2xl font-bold mb-6">Notificações</h1>
+        <nav class="space-y-3">
+          <a href="#" class="block py-2 px-3 rounded hover:bg-purple-700">Perfil</a>
+          <a href="#" class="block py-2 px-3 rounded hover:bg-purple-700">Menu principal <span class="ml-1 text-sm bg-white text-purple-800 px-2 rounded-full">3</span></a>
+          <a href="#" class="block py-2 px-3 rounded hover:bg-purple-700">Concluídos <span class="ml-1 text-sm bg-white text-purple-800 px-2 rounded-full">0</span></a>
+          <a href="#" class="block py-2 px-3 rounded hover:bg-purple-700">Eventos <span class="ml-1 text-sm bg-white text-purple-800 px-2 rounded-full">2</span></a>
+          <a href="#" class="block py-2 px-3 rounded hover:bg-purple-700">historico</a>
+          <a href="#" class="block py-2 px-3 rounded hover:bg-purple-700">Agenda</a>
+          <a href="#" class="block py-2 px-3 rounded hover:bg-purple-700">Mensagens <span class="ml-1 text-sm bg-white text-purple-800 px-2 rounded-full">1</span></a>
+        </nav>
+      </div>
+      <a class="w-24 mx-auto mt-6" href="#">DevLopes</a> 
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-6">
+      <header class="flex justify-between items-center mb-6">
+        <h2 class="text-3xl font-bold">Perfil</h2>
+      </header>
+
+      <div class="grid grid-cols-3 gap-6">
+        <!-- Profile Info -->
+        <div class="col-span-2 bg-white p-4 rounded-2xl shadow">
+          <div class="flex items-center space-x-6">
+            <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Foto" class="w-28 h-28 rounded-full">
+            <div>
+              <h3 class="text-xl font-semibold">Nikol Prokhorova</h3>
+              <p>Data de registro: 24 de novembro de 2022</p>
+              <p>País, cidade: Bulgária, Sófia</p>
+              <p>Data de nascimento: 08/04/1993</p>
+              <p>Email: proxorovanica@mail.ru</p>
+              <p>Telefone: (+378) 265 236 25</p>
+              <div class="flex space-x-3 mt-2 text-purple-700">
+                <a href="#">📷</a><a href="#">📘</a><a href="#">🐦</a><a href="#">▶️</a><a href="#">📨</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Info -->
+        <div class="bg-white p-4 rounded-2xl shadow">
+          <h3 class="text-lg font-bold mb-3">Dados de pagamento</h3>
+          <p class="mb-2">Número do cartão: 236 *** *** 265</p>
+          <div class="flex space-x-3">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Western_Union_logo.svg/1280px-Western_Union_logo.svg.png" alt="WU" class="h-6">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/5/5a/Google_Pay_Logo.svg" alt="GPay" class="h-6">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png" alt="MC" class="h-6">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" class="h-6">
+          </div>
+        </div>
+
+        <!-- Courses -->
+        <div class="col-span-2 bg-white p-4 rounded-2xl shadow">
+          <h3 class="text-lg font-bold mb-3">Meus projetos</h3>
+          <div class="space-y-3">
+            <div class="flex justify-between bg-purple-100 p-3 rounded-lg">
+              <div>
+                <h4 class="font-semibold">UX/UI Design — sites</h4>
+                <p>Composição, tipografia, teoria das cores...</p>
+                <p>68 aulas</p>
+              </div>
+              <span class="bg-green-500 text-white px-2 py-1 rounded">Concluído</span>
+            </div>
+            <div class="flex justify-between bg-pink-100 p-3 rounded-lg">
+              <div>
+                <h4 class="font-semibold">UX/UI Design — aplicativos</h4>
+                <p>Design de interface de apps móveis...</p>
+                <p>12 aulas</p>
+              </div>
+              <span class="bg-green-500 text-white px-2 py-1 rounded">Concluído</span>
+            </div>
+            <div class="flex justify-between bg-purple-50 p-3 rounded-lg">
+              <div>
+                <h4 class="font-semibold">UX/UI Design — animação</h4>
+                <p>Animação de elementos na interface...</p>
+                <p>12 aulas</p>
+              </div>
+              <span class="bg-purple-700 text-white px-2 py-1 rounded">Iniciado: 13/06/2023</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subscription -->
+        <div class="bg-purple-700 text-white p-6 rounded-2xl shadow">
+            <h3 class="text-lg font-bold mb-4 text-center">Calendário</h3>
+            <div class="text-center mb-4" id="month-year"></div>
+            <div class="grid grid-cols-7 gap-2 text-sm font-semibold mb-2">
+            <div>D</div><div>S</div><div>T</div><div>Q</div><div>Q</div><div>S</div><div>S</div>
+            </div>
+            <div id="calendar-days" class="grid grid-cols-7 gap-2"></div>
+            </div>
+            </div>
+    </main>
+  </div>
+  
+</body>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    const daysContainer = document.getElementById('calendar-days');
+    const monthYear = document.getElementById('month-year');
+    const date = new Date();
+    
+    
+    const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+    monthYear.textContent = `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+    
+    
+    const firstDay = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+    const lastDate = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+    
+    
+    for (let i = 0; i < firstDay; i++) {
+    const empty = document.createElement('div');
+    daysContainer.appendChild(empty);
+    }
+    
+    
+    for (let i = 1; i <= lastDate; i++) {
+    const day = document.createElement('div');
+    day.textContent = i;
+    day.className = "text-center py-2 rounded-lg hover:bg-purple-200 cursor-pointer";
+    daysContainer.appendChild(day);
+    }
+    });
+</script>
+</html>
