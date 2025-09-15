@@ -8,7 +8,6 @@ SECRET_KEY = 'django-insecure-8l8o(-2su$6t%k424293i#x672q0$*^itfyi9r32$8j-igo7zf
 DEBUG = True
 
 ALLOWED_HOSTS = []
-AUTH_USER_MODEL = 'app.usuario'  # substitua 'app' pelo nome do seu app
 
 AUTHENTICATION_BACKENDS = [
     'app.auth_backends.EmailBackend',  # caminho para seu backend personalizado
@@ -30,7 +29,6 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',  # Corrigido: "SssionMiddleware"
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',  # precisa estar presente
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',

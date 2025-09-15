@@ -1,66 +1,20 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import make_password, check_password
-from django.contrib.auth.models import User
-from .models import *
-from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.utils.decorators import method_decorator
+from django.views.decorators.http import require_POST
 import json
+from django.contrib.auth.decorators import login_required
 
-
-def progresso_aluno(request):
-    # Pega só os registros do usuário logado
-    progresso = ProgressoAluno.objects.filter(aluno=request.user)
-
-
-    linguagens_count = {}
-    desempenho_projeto = {}
-
-    for p in progresso:
-        for tecnologia in p.tecnologias_usadas.all():
-            linguagens_count[tecnologia.nome] = linguagens_count.get(tecnologia.nome, 0) + 1
-        desempenho_projeto[p.projeto.titulo] = p.nota or 0
-
-    context = {
-        'progresso': progresso,
-        'linguagens_count': linguagens_count,
-        'desempenho_projeto': desempenho_projeto,
-    }
-    return render(request, 'progresso.html', context)
-
-def tecnologias(request):
-    if not request.session.get('usuario_id'):
-        return redirect('login')  # ou 'index', se preferir
-
-    tecnologias = Tecnologia.objects.all()
-
-    try:
-        usuario = Usuario.objects.get(id=request.session['usuario_id'])
-    except Usuario.DoesNotExist:
-        usuario = None
-
-    context = {
-        'tecnologias': tecnologias,
-        'usuario': usuario,
-    }
-    return render(request, 'tecnologias.html', context)
-
-def lista_tecnologias(request):
-    tecnologias = Tecnologia.objects.all()
-    return render(request, 'tecnologias.html', {'tecnologias': tecnologias})
-
-def registrar_tecnologia(request):
-    if request.method == 'POST':
-        nome = request.POST.get('nome')
-        if nome:
-            tecnologia = Tecnologia(nome=nome)
-            tecnologia.save()
-            return JsonResponse({'status': 'success', 'nome': tecnologia.nome})
-        else:
-            return JsonResponse({'status': 'error', 'msg': 'Nome não informado'})
-    return JsonResponse({'status': 'error', 'msg': 'Método inválido'})
+from .models import Usuario, Tecnologia, Projeto, Reuniao, ProgressoAluno, Feedback
+class Perfil(View):
+    def get(self, request):
+        return render(request, 'perfil.html')
+# ==============================
+# AUTENTICAÇÃO (Login, Logout, Cadastro)
+# ==============================
 
 class LoginView(View):
     def get(self, request):
@@ -70,31 +24,26 @@ class LoginView(View):
         email = request.POST.get('email')
         senha = request.POST.get('senha')
 
-        # Como nosso User model tem email, precisamos pegar o username antes
         try:
-            usuario_obj = Usuario.objects.get(email=email)
-            username = usuario_obj.username
+            usuario = Usuario.objects.get(email=email)
+            if check_password(senha, usuario.senha):
+                request.session['usuario_id'] = usuario.id
+                request.session['usuario_nome'] = usuario.nome
+                return redirect('dashboard')
+            else:
+                messages.error(request, "Email ou senha inválidos.")
         except Usuario.DoesNotExist:
             messages.error(request, "Email ou senha inválidos.")
-            return redirect('login')
 
-        # Autenticação usando username e senha
-        usuario = authenticate(request, username=username, password=senha)
-        if usuario is not None:
-            login(request, usuario)  # cria a sessão do usuário
-            return render(request,'dashboard.html')
-        else:
-            messages.error(request, "Email ou senha inválidos.")
-            return redirect('login')
+        return redirect('login')
 
 
-        
 class CadastroView(View):
     def get(self, request):
         return render(request, 'cadastro.html')
 
     def post(self, request):
-        username = request.POST.get('nome')  # será usado como username
+        nome = request.POST.get('nome')
         email = request.POST.get('email')
         senha = request.POST.get('senha')
         telefone = request.POST.get('telefone')
@@ -105,73 +54,93 @@ class CadastroView(View):
             messages.error(request, "Email já cadastrado.")
             return redirect('cadastro')
 
-        usuario = Usuario.objects.create_user(
-            username=username,  # campo obrigatório do AbstractUser
+        senha_hash = make_password(senha)
+        Usuario.objects.create(
+            nome=nome,
             email=email,
-            password=senha,     # create_user já faz hash automaticamente
+            senha=senha_hash,
+            telefone=telefone,
+            tipo_usuario=tipo_usuario,
+            cpf_cnpj=cpf_cnpj
         )
-
-        # Preenchendo os campos extras
-        usuario.telefone = telefone
-        usuario.tipo_usuario = tipo_usuario
-        usuario.cpf_cnpj = cpf_cnpj
-        usuario.save()
 
         messages.success(request, "Cadastro realizado com sucesso. Faça login.")
         return redirect('index')
+
+
+def logout_view(request):
+    request.session.flush()  # limpa sessão
+    return redirect('login')
+
+
+# ==============================
+# PÁGINAS GERAIS
+# ==============================
 
 def dashboard_view(request):
     if not request.session.get('usuario_id'):
         return redirect('login')
 
     usuario = Usuario.objects.get(id=request.session['usuario_id'])
-    nome = usuario.nome
-
-    return render(request, 'dashboard.html', {
-        'nome': nome,
-        'usuario': usuario,
-    })
+    return render(request, 'dashboard.html', {'usuario': usuario})
 
 
 class ApresentacaoView(View):
     def get(self, request):
-        return render(request, 'apresentacao.html')
-from django.contrib.auth import logout
-
-def logout_view(request):
-    logout(request)  # limpa sessão e desloga o usuário
-    return redirect('login')  # redireciona para login
+        return render(request, 'index.html')
 
 
-class UsuarioListView(View):
-    model = Usuario
-    template_name = 'usuarios.html'
-    context_object_name = 'usuarios'
+# ==============================
+# TECNOLOGIAS
+# ==============================
 
-
-
-def projetos(request):
+def tecnologias(request):
     if not request.session.get('usuario_id'):
-        return redirect('login')  # ou 'index', como preferir
+        return redirect('login')
 
-    try:
-        usuario = Usuario.objects.get(id=request.session['usuario_id'])
-    except Usuario.DoesNotExist:
-        usuario = None
-
-    projetos = Projeto.objects.all()
+    usuario = Usuario.objects.get(id=request.session['usuario_id'])
     tecnologias = Tecnologia.objects.all()
 
     context = {
+        'tecnologias': tecnologias,
+        'usuario': usuario,
+    }
+    return render(request, 'tecnologias.html', context)
+
+
+def lista_tecnologias(request):
+    tecnologias = Tecnologia.objects.all()
+    return render(request, 'tecnologias.html', {'tecnologias': tecnologias})
+
+
+def registrar_tecnologia(request):
+    if request.method == 'POST':
+        nome = request.POST.get('nome')
+        if nome:
+            tecnologia = Tecnologia.objects.create(nome=nome)
+            return JsonResponse({'status': 'success', 'nome': tecnologia.nome})
+        return JsonResponse({'status': 'error', 'msg': 'Nome não informado'})
+    return JsonResponse({'status': 'error', 'msg': 'Método inválido'})
+
+
+# ==============================
+# PROJETOS
+# ==============================
+
+def projetos(request):
+    if not request.session.get('usuario_id'):
+        return redirect('login')
+
+    usuario = Usuario.objects.get(id=request.session['usuario_id'])
+    projetos = Projeto.objects.all()
+    tecnologias = Tecnologia.objects.all()
+
+    return render(request, 'projetos.html', {
         'usuario': usuario,
         'projetos': projetos,
         'tecnologias': tecnologias,
-    }
-    return render(request, 'projetos.html', context)
+    })
 
-def lista_projetos(request):
-    projetos = Projeto.objects.all()
-    return render(request, 'projetos.html', {'projetos': projetos})
 
 def registrar_projeto(request):
     if request.method == 'POST':
@@ -180,23 +149,86 @@ def registrar_projeto(request):
             titulo=data['titulo'],
             descricao=data['descricao'],
             status=data['status'],
-            solicitante=data.get('solicitante', 'Anônimo'),
-            detalhes=data.get('detalhes', '')
+            aluno_id=data['aluno_id'],
+            cliente_id=data['cliente_id']
         )
-        return JsonResponse({
-            'id': projeto.id,
-            'titulo': projeto.titulo,
-            'descricao': projeto.descricao,
-            'status': projeto.status,
-            'solicitante': projeto.solicitante,
-            'detalhes': projeto.detalhes
-        })
+        return JsonResponse({'status': 'ok', 'id': projeto.id})
 
-def reunioes(request):
+
+# ==============================
+# REUNIÕES
+# ==============================
+
+def reunioes_view(request):
+    if not request.session.get('usuario_id'):
+        return redirect('login')
     return render(request, 'reunioes.html')
 
+
+# ==============================
+# CHAT
+# ==============================
+
 def chat_view(request):
+    if not request.session.get('usuario_id'):
+        return redirect('login')
     return render(request, 'chat.html')
-def teste_perfil(request):
-    projetos = Projeto.objects.all()
-    return render(request, 'teste.html', {'teste': teste_perfil})
+
+
+# ==============================
+# MEUS DADOS
+# ==============================
+
+def meusdados_view(request):
+    if not request.session.get('usuario_id'):
+        return redirect('login')
+
+    usuario = Usuario.objects.get(id=request.session['usuario_id'])
+    projetos_do_aluno = ProgressoAluno.objects.filter(aluno=usuario).values_list('projeto', flat=True)
+
+    reunioes = Reuniao.objects.filter(projeto__in=projetos_do_aluno)
+    desempenhos = ProgressoAluno.objects.filter(aluno=usuario)
+
+    context = {
+        'usuario': usuario,
+        'reunioes': reunioes,
+        'desempenhos': desempenhos,
+        'tem_novas_reunioes': reunioes.filter(visualizado=False).exists(),
+        'tem_novos_desempenhos': desempenhos.filter(visualizado=False).exists(),
+    }
+    return render(request, 'meusdados.html', context)
+
+
+@require_POST
+def marcar_visualizado(request):
+    """
+    Recebe JSON: {"tipo": "reuniao"|"desempenho", "id": <int>}
+    Marca o item como visualizado=True.
+    """
+    tipo = request.POST.get('tipo')
+    item_id = request.POST.get('id')
+
+    if tipo == 'reuniao':
+        Reuniao.objects.filter(id=item_id).update(visualizado=True)
+    elif tipo == 'desempenho':
+        ProgressoAluno.objects.filter(id=item_id).update(visualizado=True)
+
+    return JsonResponse({'status': 'ok'})
+
+
+# ==============================
+# FEEDBACKS (Novo, pois estava faltando)
+# ==============================
+
+def feedbacks_view(request, projeto_id):
+    """Lista feedbacks de um projeto específico."""
+    if not request.session.get('usuario_id'):
+        return redirect('login')
+
+    projeto = get_object_or_404(Projeto, id=projeto_id)
+    feedbacks = Feedback.objects.filter(projeto=projeto)
+
+    return render(request, 'feedbacks.html', {
+        'projeto': projeto,
+        'feedbacks': feedbacks,
+    })

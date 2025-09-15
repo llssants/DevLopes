@@ -6,173 +6,7 @@
   <title>Comunidade DevLopes</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      color: #ffffff;
-      background: radial-gradient(circle at center, #2a2a84, #302b63, #24243e);
-
-      min-height: 100vh;
-    }
-
-    nav.navbar {
-      background-color: rgba(38, 38, 147, 0.95) !important;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
-    }
-
-    .navbar-brand,
-    .nav-link {
-      color: #fff !important;
-      font-weight: 600;
-      text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
-    }
-
-    .hero {
-      text-align: center;
-      padding: 100px 20px;
-      background: radial-gradient(circle at center, #2a2a84 0%, transparent 70%);
-    }
-
-    .hero h1 {
-      font-size: 3rem;
-      font-weight: bold;
-      text-shadow: 0 0 20px #00bcd4;
-    }
-
-    .hero span {
-      color: #00bcd4;
-    }
-
-    .comunidade-btn {
-      background: #00bcd4;
-      color: #fff;
-      padding: 12px 28px;
-      border-radius: 30px;
-      font-weight: bold;
-      border: none;
-      margin-top: 30px;
-      box-shadow: 0 0 15px #00bcd4;
-      transition: transform 0.2s ease;
-      background: radial-gradient(circle at center, #2a2a84 0%, transparent 70%);
-
-    }
-
-    .comunidade-btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 20px #00ffff;
-    }
-
-    .features {
-      padding: 60px 20px;
-    }
-
-    .feature-box {
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 0 20px rgba(0, 123, 255, 0.4);
-      height: 100%;
-      backdrop-filter: blur(4px);
-      transition: 0.3s ease;
-    }
-
-    .feature-box:hover {
-      transform: scale(1.03);
-    }
-
-    .feature-box h4 {
-      color: #aee6ff;
-      text-shadow: 0 0 6px #2196f3;
-      
-    }
-
-
-    .depoimentos-section {
-      margin: 0 auto;
-      padding: 30px 20px;
-      border-radius: 16px;
-      box-shadow: 0 0 20px rgba(0, 217, 255, 0.1);
-      text-align: center;
-    }
-
-    .depoimentos-title {
-      font-size: 2rem;
-      background: radial-gradient(circle at center, #2a2a84 0%, transparent 70%);
-
-      margin-bottom: 40px;
-      color: #6cb4be;
-      font-weight: bold;
-    }
-
-    .swiper-slide {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    blockquote {
-      padding: 30px;
-      background: rgba(255, 255, 255, 0.05);
-      border-left: 5px solid #00ffff;
-      border-radius: 10px;
-      font-style: italic;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 0 15px #00ffff33;
-      color: #ccc;
-    }
-
-    blockquote footer {
-      margin-top: 15px;
-      font-style: normal;
-      font-weight: bold;
-      color: #ccc;
-    }
-
-    .sobre {
-      display: flex;
-      align-items: center;
-      margin: 5% 10% 10% 10%;
-      gap: 20px;
-    }
-
-    .h2{
-      align-items: center;
-      text-align: center;
-    }
-    .sobre img {
-      width: 40%;
-      height: auto;
-      border-radius: 8px;
-    }
-
-    .sobre p {
-      width: 60%;
-      margin: 0;
-    }
-
-
-    footer {
-      background-color: rgba(18, 18, 50, 0.8);
-      padding: 30px 0;
-      text-align: center;
-      color: #aaa;
-    }
-
-    footer i {
-      font-size: 1.5rem;
-      margin: 0 10px;
-      color: #00bcd4;
-    }
-
-    a {
-      transition: 0.3s;
-    }
-
-    a:hover {
-      color: #00ffff !important;
-      text-shadow: 0 0 6px #00ffff;
-    }
-  </style>
+  <link rel="stylesheet" href="../static/dashboard.css">
 </head>
 
 <body>
@@ -194,15 +28,28 @@
         <li class="nav-item"><a class="nav-link" href="{% url 'projetos' %}">Projetos</a></li>
         <li class="nav-item"><a class="nav-link" href="{% url 'tecnologias' %}">Tecnologias</a></li>
         <li class="nav-item"><a class="nav-link" href="{% url 'reunioes' %}">Reuniões</a></li>
-        <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Sair</a></li>
+
+        <!-- Dropdown Perfil -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="perfilDropdown" role="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+            Perfil
+          </a>
+          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="perfilDropdown">
+            <a class="dropdown-item" href="{% url 'perfil' %}">Ver mais</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="{% url 'logout' %}">Sair</a>
+          </div>
+        </li>
       </ul>
     </div>
   </nav>
 
+
   <!-- Hero -->
   <section class="hero">
     <h1>A melhor <span>comunidade</span> de <br>Desenvolvimento Web</h1>
-    <button class="comunidade-btn">👥 COMUNIDADE WEBDEV</button>
+    <button class="comunidade-btn"> COMUNIDADE WEBDEV</button>
   </section>
 
 
@@ -231,11 +78,9 @@
       </div>
     </div>
   </section>
-  <!-- SwiperJS CDN (adicione no <head> do seu HTML) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
-  <!-- Seção de Depoimentos -->
   <section class="depoimentos-section">
     <h2 class="depoimentos-title">O que dizem nossos membros</h2>
 
@@ -281,16 +126,6 @@
       <div class="swiper-button-prev"></div>
       <div class="swiper-button-next"></div>
     </div>
-  </section>
-
-  <!-- Sobre -->
-  <h2 class="h2">Sobre a Comunidade</h2>
-  <section class="sobre">
-    <img
-      src="https://plus.unsplash.com/premium_photo-1733328013343-e5ee77acaf05?q=80&w=1332&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-      alt="">
-    <p>Somos um grupo de desenvolvedores apaixonados por ensino e colaboração. Nosso objetivo é ajudar iniciantes e
-      profissionais a crescerem juntos por meio de desafios, suporte e projetos práticos com propósito.</p>
   </section>
 
   <!-- Rodapé -->

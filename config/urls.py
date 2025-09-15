@@ -10,13 +10,15 @@ urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),   # tela de login
     path('cadastro/', CadastroView.as_view(), name='cadastro'),
     path('dashboard/', dashboard_view, name='dashboard'),
-    path('logout/', logout_view, name='logout'),
-    path('projetos.html', projetos, name='projetos'),
+    path('meus-dados/', meusdados_view, name='meusdados'),     path('logout/', logout_view, name='logout'),
+    path('projetos/', projetos, name='projetos'),
     path('tecnologias.html', tecnologias, name='tecnologias'),
     path('registrar-tecnologia/', registrar_tecnologia, name='registrar_tecnologia'),
-    path('reunioes.html', reunioes, name='reunioes'),
     path('chat/', chat_view, name='chat'),
-    path('teste/', teste_perfil, name='teste'),
-    path('progresso/', progresso_aluno, name='progresso_aluno'),
     path('registrar_projeto/', registrar_projeto, name='registrar_projeto'),
+    path('marcar-visualizado/', marcar_visualizado, name='marcar_visualizado'),  # AJAX
+    path('reunioes/', reunioes_view, name='reunioes'),  # <- adicione isso
+    path("perfil/", Perfil.as_view(), name="perfil")
+
+
 ]

@@ -1,0 +1,142 @@
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      color: #222;
+      background: #fdfdfd;
+    }
+
+    /* NAVBAR */
+    .navbar {
+      background-color: #0a1f3d; /* azul escuro da paleta */
+    }
+    .navbar-brand {
+      font-weight: bold;
+      font-size: 1.3rem;
+      color: #fff !important;
+    }
+    .nav-link {
+      color: #fff !important;
+      font-weight: 500;
+    }
+    .nav-link:hover {
+      text-decoration: underline;
+    }
+
+    /* HERO */
+    .hero {
+      background: linear-gradient(to right, #0a1f3d, #1d4f91);
+      color: white;
+      padding: 100px 20px;
+      text-align: center;
+    }
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: bold;
+    }
+    .hero p {
+      font-size: 1.2rem;
+      margin-top: 20px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .hero .btn-hero {
+      margin-top: 30px;
+      background: #2d82ff;
+      color: #fff;
+      padding: 12px 30px;
+      border-radius: 8px;
+      border: none;
+      font-weight: bold;
+    }
+    .hero .btn-hero:hover {
+      background: #1546a0;
+    }
+
+    /* FEATURES */
+    .features {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      margin: -50px auto 60px auto;
+      max-width: 1000px;
+      padding: 30px;
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+    }
+    .feature {
+      text-align: center;
+      padding: 15px;
+      flex: 1 1 200px;
+    }
+    .feature h5 {
+      margin-top: 10px;
+      font-weight: 600;
+    }
+    .feature p {
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    /* AUDIENCE */
+    .audience {
+      max-width: 1100px;
+      margin: 80px auto;
+      text-align: center;
+    }
+    .audience h2 {
+      font-size: 2rem;
+      margin-bottom: 40px;
+    }
+    .cards {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+    .card-custom {
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      width: 230px;
+      padding: 20px;
+      text-align: center;
+      transition: transform 0.2s;
+    }
+    .card-custom:hover {
+      transform: translateY(-5px);
+    }
+    .card-custom img {
+      width: 100%;
+      border-radius: 15px;
+    }
+    .card-custom h5 {
+      margin: 15px 0 10px 0;
+      font-size: 1.1rem;
+      font-weight: bold;
+    }
+    .card-custom p {
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    /* VIDEO SECTION */
+    .video-section {
+      text-align: center;
+      margin: 80px auto;
+      max-width: 900px;
+    }
+    .video-box {
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    }
+
+    /* FOOTER */
+    .footer {
+      background: #0a1f3d;
+      color: white;
+      padding: 40px;
+      text-align: center;
+      margin-top: 80px;
+    }

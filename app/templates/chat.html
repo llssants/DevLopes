@@ -1,190 +1,66 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="pt-br">
-
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Chat - DevLopes</title>
-
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" />
-<style>
-  body {
-    background-color: #ccc;    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    color: white;
-    font-family: 'Segoe UI', sans-serif;
-  }
-
-  .chat-header {
-    background-color: rgba(0, 60, 150, 0.9);
-    color: white;
-    padding: 15px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-  }
-
-  .chat-header i {
-    margin-right: 10px;
-    cursor: pointer;
-  }
-
-  .chat-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    overflow-y: auto;
-    backdrop-filter: blur(6px);
-  }
-
-  .mensagem {
-    max-width: 70%;
-    padding: 12px 16px;
-    border-radius: 16px;
-    margin-bottom: 10px;
-    font-size: 0.95rem;
-    word-break: break-word;
-    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
-  }
-
-  .msg-enviada {
-    background: rgba(255, 255, 255, 0.2);
-    color: #000000;
-    align-self: flex-end;
-    text-align: right;
-  }
-
-  .msg-recebida {
-    background: rgba(255, 255, 255, 0.1);
-    color: #000000;
-    align-self: flex-start;
-    text-align: left;
-  }
-
-  .chat-footer {
-    padding: 10px 20px;
-    background-color: rgba(255, 255, 255, 0.1);
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(5px);
-  }
-
-  .chat-footer .form-control {
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    color: white;
-  }
-
-  .chat-footer .form-control::placeholder {
-    color: #ccc;
-  }
-
-  .chat-footer .btn {
-    border-radius: 20px;
-    background-color: #007bff;
-    border: none;
-    color: white;
-    font-weight: bold;
-  }
-
-  .chat-footer .btn:hover {
-    background-color: #0056b3;
-  }
-</style>
-
+  <meta charset="UTF-8">
+  <title>Chat</title>
+  <link rel="stylesheet" href="../static/chat.css">
 </head>
-
 <body>
-<!-- Botão Voltar para Dashboard -->
+  <div class="chat-container">
 
+   
+    <!-- Lista de conversas -->
+    <section class="chat-list">
+      <header>
+        <h3>Chat</h3>
+        <input type="text" placeholder="Buscar...">
+      </header>
+      <ul>
+        {% for contato in contatos %}
+          <li class="{% if contato.id == ativo.id %}ativo{% endif %}">
+            <img src="{% static 'img/avatar.png' %}" alt="foto">
+            <div>
+              <h4>{{ contato.nome }}</h4>
+              <p>{{ contato.ultima_msg|truncatechars:30 }}</p>
+            </div>
+            <span class="tempo">{{ contato.tempo }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
 
-<!-- Header do chat -->
-<div class="chat-header">
-      <a href="{% url 'dashboard' %}" class="btn btn-link text-success font-weight-bold">
-        &#8592; 
-      </a>
-    <i class="fas fa-arrow-left" onclick="window.history.back()"></i>
-    Chat com João Silva
-  </div>
+    <!-- Janela do chat -->
+    <section class="chat-window">
+      <header class="chat-header">
+        <div class="user-info">
+          <img src="{% static 'img/avatar.png' %}" alt="foto">
+          <div>
+            <h4>{{ ativo.nome }}</h4>
+            <p>Online</p>
+          </div>
+        </div>
+        <button class="novo-msg">+ Nova mensagem</button>
+      </header>
 
-  <!-- Área de mensagens -->
-  <div class="chat-container" id="chatContainer">
-    <div class="mensagem msg-recebida">Olá, tudo bem?</div>
-    <div class="mensagem msg-enviada">Oi! Tudo certo, e com você?</div>
-  </div>
-
-  <!-- Campo de envio -->
-  <div class="chat-footer">
-    <div class="input-group">
-      <input type="text" id="chatInput" class="form-control" placeholder="Digite sua mensagem..." />
-      <div class="input-group-append">
-        <button id="btnEnviar" class="btn btn-success">Enviar</button>
+      <div class="mensagens">
+        {% for msg in mensagens %}
+          <div class="mensagem {% if msg.autor == user %}enviada{% else %}recebida{% endif %}">
+            <p>{{ msg.texto }}</p>
+            {% if msg.arquivo %}
+              <a href="{{ msg.arquivo.url }}" class="arquivo">{{ msg.arquivo.name }}</a>
+            {% endif %}
+          </div>
+        {% endfor %}
       </div>
-    </div>
+
+      <form method="POST" class="input-msg">
+        {% csrf_token %}
+        <input type="text" name="mensagem" placeholder="Digite sua mensagem...">
+        <button type="submit">➤</button>
+      </form>
+    </section>
+
   </div>
-
-  <!-- Scripts -->
-  <script>
-  const chatContainer = document.getElementById('chatContainer');
-  const chatInput = document.getElementById('chatInput');
-  const btnEnviar = document.getElementById('btnEnviar');
-
-  // Função para adicionar mensagem à interface
-  function adicionarMensagem(texto, enviada = true, salvar = true) {
-    const msg = document.createElement('div');
-    msg.className = 'mensagem ' + (enviada ? 'msg-enviada' : 'msg-recebida');
-    msg.innerText = texto;
-    chatContainer.appendChild(msg);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-
-    if (salvar) {
-      salvarMensagem(texto, enviada);
-    }
-  }
-
-  // Função para salvar mensagem no localStorage
-  function salvarMensagem(texto, enviada) {
-    const historico = JSON.parse(localStorage.getItem('chatHistorico')) || [];
-    historico.push({ texto, enviada });
-    localStorage.setItem('chatHistorico', JSON.stringify(historico));
-  }
-
-  // Função para carregar mensagens salvas
-  function carregarMensagens() {
-    const historico = JSON.parse(localStorage.getItem('chatHistorico')) || [];
-    historico.forEach(msg => {
-      adicionarMensagem(msg.texto, msg.enviada, false);
-    });
-  }
-
-  // Botão enviar
-  btnEnviar.addEventListener('click', () => {
-    const texto = chatInput.value.trim();
-    if (!texto) return;
-    adicionarMensagem(texto, true);
-    chatInput.value = '';
-
-    // Resposta automática (exemplo)
-    setTimeout(() => {
-      adicionarMensagem('Mensagem recebida! Vamos analisar.', false);
-    }, 1000);
-  });
-
-  // Tecla Enter
-  chatInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      btnEnviar.click();
-    }
-  });
-
-  // Carregar mensagens ao abrir
-  carregarMensagens();
-</script>
-
 </body>
-
 </html>
