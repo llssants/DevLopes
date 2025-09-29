@@ -1,0 +1,126 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: #f2f4fa;
+  }
+  
+  .container {
+    display: flex;
+    height: 100vh;
+  }
+  
+  /* Sidebar */
+  .sidebar {
+    width: 240px;
+    background: #180a57;
+    color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .sidebar .logo {
+    margin-bottom: 40px;
+    text-align: center;
+  }
+  
+  .sidebar ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .sidebar ul li {
+    margin: 15px 0;
+  }
+  
+  .sidebar ul li a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    transition: 0.3s;
+  }
+  
+  .sidebar ul li a:hover {
+    color: #ffd369;
+  }
+  
+  /* Conteúdo */
+  .content {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+  }
+  
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  header input {
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+  }
+  
+  /* Cards */
+  .card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  
+  /* Perfil */
+  .perfil-info {
+    display: flex;
+    align-items: center;
+  }
+  
+  .perfil-info img {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    margin-right: 20px;
+  }
+  
+  /* Calendário */
+  .calendario-card {
+    text-align: center;
+  }
+  
+  #calendario {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    margin-top: 15px;
+  }
+  
+  #calendario div {
+    padding: 10px;
+    border-radius: 6px;
+    background: #eee;
+  }
+  
+  #calendario .hoje {
+    background: #16075d;
+    color: white;
+    font-weight: bold;
+  }
+  
+  #calendario .evento {
+    background: #428dc6;
+    color: white;
+  }
+  
+  /* Projetos */
+  .projetos-card ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .projetos-card li {
+    margin: 10px 0;
+  }
+  

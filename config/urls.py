@@ -18,7 +18,13 @@ urlpatterns = [
     path('registrar_projeto/', registrar_projeto, name='registrar_projeto'),
     path('marcar-visualizado/', marcar_visualizado, name='marcar_visualizado'),  # AJAX
     path('reunioes/', reunioes_view, name='reunioes'),  # <- adicione isso
-    path("perfil/", Perfil.as_view(), name="perfil")
+    path("perfil/", Perfil.as_view(), name="perfil"),
+    path('meus-projetos/', meus_projetos, name='meus_projetos'),
+    path('feedbacks/', feedbacks, name='feedbacks_meus_projetos'),  # feedbacks dos meus projetos
+    path('feedbacks-geral/', feedbacks_todos, name='feedbacks_todos'),  # todos os feedbacks
+    path('pegar-projeto/<int:projeto_id>/', pegar_projeto, name='pegar_projeto'),
+    path('trabalhos/', meus_trabalhos, name='trabalhos'),
 
 
 ]
+

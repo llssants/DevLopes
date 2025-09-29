@@ -1,0 +1,73 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Perfil - Success</title>
+  <link rel="stylesheet" href="../static/perfil.css">
+  <style>
+        h1 {
+            color: #333;
+        }
+        ul.projetos-list {
+            list-style: none;
+            padding: 0;
+        }
+        ul.projetos-list li {
+            background: white;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px #ccc;
+            width: 25vw;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+  </style>
+</head>
+<body>
+  <div class="container">
+    
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <h2 class="logo">SUCCESS</h2>
+      <ul>
+        <li><a href="#">Perfil</a></li>
+        <li><a href="#">Reuniões</a></li>
+        <li><a href="{% url 'chat' %}">Mensagens</a></li>
+        <li><a href="{% url 'trabalhos' %}">Meus trabalhos</a></li>
+        <li><a href="">Meu Progresso</a></li>
+        <li><a href="#">Ajuda</a></li>
+      </ul>
+    </aside>
+
+    <!-- Conteúdo -->
+    <main class="content">
+        <h1>Meus Trabalhos</h1>
+
+        
+    {% if projetos %}
+    <ul class="projetos-list">
+        {% for projeto in projetos %}
+            <li>
+                <strong>{{ projeto.titulo }}</strong><br />
+                {{ projeto.descricao }}<br />
+                <a href="{{ projeto.link }}" target="_blank">Ver projeto</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>Você ainda não possui projetos cadastrados.</p>
+{% endif %}
+        
+
+    </main>
+  </div>
+</body>
+
+</html>

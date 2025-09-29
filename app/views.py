@@ -6,8 +6,10 @@ from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
 import json
+from django.http import HttpResponseRedirect
+from django.db.models import Q
+from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-
 from .models import Usuario, Tecnologia, Projeto, Reuniao, ProgressoAluno, Feedback
 class Perfil(View):
     def get(self, request):
@@ -155,6 +157,51 @@ def registrar_projeto(request):
         return JsonResponse({'status': 'ok', 'id': projeto.id})
 
 
+def meus_projetos(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    try:
+        usuario = Usuario.objects.get(pk=request.user.pk)  # ou get(user=request.user) se houver relação
+    except Usuario.DoesNotExist:
+        return redirect('login')  # ou mensagem de erro
+
+    projetos = Projeto.objects.filter(Q(aluno=usuario) | Q(cliente=usuario))
+    return render(request, 'meus_projetos.html', {'projetos': projetos})
+
+
+def pegar_projeto(request, projeto_id):
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    usuario = Usuario.objects.get(pk=request.user.pk)
+
+    if usuario.tipo_usuario != 'aluno':
+        messages.error(request, "Apenas alunos podem pegar projetos.")
+        return redirect('projetos')
+
+    projeto = get_object_or_404(Projeto, pk=projeto_id)
+    
+    # Atualiza o projeto com o aluno e altera o status para 'andamento'
+    projeto.aluno = usuario
+    projeto.status = 'andamento'  # <-- aqui você muda o status
+    projeto.save()
+
+    messages.success(request, f'Você pegou o projeto: {projeto.titulo}')
+    return redirect('projetos')  # ou a URL que preferir
+
+
+
+def meus_trabalhos(request):
+    try:
+        usuario = Usuario.objects.get(pk=request.user.pk)
+    except Usuario.DoesNotExist:
+        # Se não encontrar, talvez redirecione ou exiba erro
+        return redirect('alguma_view_de_erro')
+
+    projetos = Projeto.objects.filter(aluno=usuario)
+    return render(request, 'meus_trabalhos.html', {'projetos': projetos})
+
 # ==============================
 # REUNIÕES
 # ==============================
@@ -220,15 +267,57 @@ def marcar_visualizado(request):
 # FEEDBACKS (Novo, pois estava faltando)
 # ==============================
 
-def feedbacks_view(request, projeto_id):
-    """Lista feedbacks de um projeto específico."""
-    if not request.session.get('usuario_id'):
+def feedbacks(request):
+    if not request.user.is_authenticated:
         return redirect('login')
 
-    projeto = get_object_or_404(Projeto, id=projeto_id)
-    feedbacks = Feedback.objects.filter(projeto=projeto)
+    usuario = Usuario.objects.get(pk=request.user.pk)
 
-    return render(request, 'feedbacks.html', {
-        'projeto': projeto,
-        'feedbacks': feedbacks,
-    })
+    # Pega os projetos onde o usuário é aluno ou cliente
+    meus_projetos = Projeto.objects.filter(Q(aluno=usuario) | Q(cliente=usuario))
+
+    # Feedbacks desses projetos
+    feedbacks = Feedback.objects.filter(projeto__in=meus_projetos).order_by('-id')
+
+    return render(request, 'feedbacks.html', {'feedbacks': feedbacks})
+
+def feedbacks_todos(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    feedbacks = Feedback.objects.all().order_by('-id')
+    return render(request, 'feedbacks_geral.html', {'feedbacks': feedbacks})
+
+def progresso_aluno(request):
+    username = 'usuario-github'
+    repo = 'repositorio'
+
+    # Pega commits
+    commits_url = f'https://api.github.com/repos/{username}/{repo}/commits'
+    commits_resp = requests.get(commits_url)
+    commits = commits_resp.json()
+
+    # Pega linguagens
+    langs_url = f'https://api.github.com/repos/{username}/{repo}/languages'
+    langs_resp = requests.get(langs_url)
+    linguagens = langs_resp.json()
+
+    dias_com_commit = set()
+    for commit in commits:
+        data = commit['commit']['author']['date'][:10]  # 'YYYY-MM-DD'
+        dias_com_commit.add(data)
+
+    # Suponha que as notas estão fixas ou em banco
+    notas = {
+        "Python": 8.5,
+        "JavaScript": 7.0,
+        # outras linguagens...
+    }
+
+    context = {
+        'dias_com_commit': list(dias_com_commit),
+        'linguagens': linguagens,
+        'notas': notas,
+    }
+
+    return render(request, 'progresso_aluno.html', context)

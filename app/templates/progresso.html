@@ -1,25 +1,131 @@
-{% extends 'dashboard.html' %}
-{% block title %}Progresso do Aluno - DevLopes{% endblock %}
-{% block content %}
-<h1>Progresso dos Alunos</h1>
-<table class="table table-striped">
-  <thead>
-    <tr>
-      <th>Aluno</th>
-      <th>Projeto</th>
-      <th>Habilidades Desenvolvidas</th>
-      <th>Observações</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for p in progresso %}
-      <tr>
-        <td>{{ p.aluno.nome }}</td>
-        <td>{{ p.projeto.titulo }}</td>
-        <td>{{ p.habilidades_desenvolvidas }}</td>
-        <td>{{ p.observacoes|default:"-" }}</td>
-      </tr>
-    {% endfor %}
-  </tbody>
-</table>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Progresso do Aluno</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .calendar {
+            display: flex;
+            flex-wrap: wrap;
+            max-width: 350px;
+            gap: 5px;
+        }
+        .day {
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .day.active {
+            background-color: #4caf50;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Progresso do Aluno</h1>
+
+    <h2>Calendário de Desenvolvimento</h2>
+    <div class="calendar" id="calendar"></div>
+
+    <h2>Gráfico de Linguagens</h2>
+    <canvas id="langChart" width="400" height="200"></canvas>
+
+    <script>
+        // Aqui estamos lendo as variáveis JSON passadas do Django e convertendo para objetos JS
+        const linguagens = JSON.parse('{{ linguagens|escapejs }}');
+        const diasComCommit = JSON.parse('{{ dias_com_commit|escapejs }}');
+
+        // Função para montar o calendário
+        function montarCalendario(dias) {
+            const calendarDiv = document.getElementById('calendar');
+            calendarDiv.innerHTML = '';
+
+            const hoje = new Date();
+            const ano = hoje.getFullYear();
+            const mes = hoje.getMonth();  // 0-11
+
+            const diasNoMes = new Date(ano, mes + 1, 0).getDate();
+
+            for(let dia = 1; dia <= diasNoMes; dia++) {
+                const diaStr = `${ano}-${String(mes + 1).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;
+                const div = document.createElement('div');
+                div.classList.add('day');
+                div.textContent = dia;
+
+                if(dias.includes(diaStr)) {
+                    div.classList.add('active');
+                }
+                calendarDiv.appendChild(div);
+            }
+        }
+
+        montarCalendario(diasComCommit);
+
+        // Prepara dados para o gráfico
+        const labels = Object.keys(linguagens);
+        const data = Object.values(linguagens);
+
+        // Exemplo simples de notas (fixas)
+        const notas = {
+            "Python": 8.5,
+            "JavaScript": 7.0,
+            "HTML": 9.0
+        };
+
+        const ctx = document.getElementById('langChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Linhas de código',
+                        data: data,
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                        yAxisID: 'y',
+                    },
+                    {
+                        label: 'Nota',
+                        data: labels.map(l => notas[l] || 0),
+                        type: 'line',
+                        borderColor: 'rgba(255, 99, 132, 0.7)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.3)',
+                        yAxisID: 'y1',
+                        fill: false,
+                        tension: 0.1,
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Linhas de código'
+                        }
+                    },
+                    y1: {
+                        beginAtZero: true,
+                        position: 'right',
+                        max: 10,
+                        title: {
+                            display: true,
+                            text: 'Nota'
+                        },
+                        grid: {
+                            drawOnChartArea: false,
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

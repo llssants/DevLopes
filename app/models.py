@@ -1,4 +1,5 @@
 from django.db import models
+from django.shortcuts import render, get_object_or_404
 
 
 # ==============================
@@ -38,6 +39,7 @@ class Usuario(models.Model):
 # ==============================
 class Projeto(models.Model):
     STATUS_CHOICES = [
+        ('disponivel', 'Disponivel'),
         ('andamento', 'Em andamento'),
         ('concluido', 'Concluído'),
     ]
@@ -138,16 +140,19 @@ class Reuniao(models.Model):
 # ==============================
 # RF08 - ProgressoAluno (Status de evolução)
 # ==============================
-class ProgressoAluno(models.Model):  
-    aluno = models.ForeignKey(
-        Usuario,
-        on_delete=models.CASCADE,
-        limit_choices_to={'tipo_usuario': 'aluno'}
-    )
-    projeto = models.ForeignKey(Projeto, on_delete=models.CASCADE)
-    habilidades_desenvolvidas = models.TextField()
-    observacoes = models.TextField(blank=True)
-    visualizado = models.BooleanField(default=False)   # NOVO ⚡️
 
-    def __str__(self):
-        return f"Evolução de {self.aluno.nome} em {self.projeto.titulo}"
+def progresso_aluno(request, aluno_id, projeto_id):
+    # Pega o progresso salvo no banco
+    progresso = get_object_or_404(ProgressoAluno, aluno_id=aluno_id, projeto_id=projeto_id)
+
+    # Busca dados do GitHub (commits, linguagens) - como no exemplo anterior
+    # (Você pode extrair essa função para facilitar)
+    github_data = buscar_progresso_github(username='usuario-github', repo='repositorio')
+
+    context = {
+        'progresso': progresso,
+        'dias_com_commit': github_data['dias_com_commit'],
+        'linguagens': github_data['linguagens'],
+        # notas podem vir do progresso ou ser calculadas
+    }
+    return render(request, 'progresso_aluno.html', context)

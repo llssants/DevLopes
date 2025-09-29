@@ -24,24 +24,23 @@
 
     <!-- Conteúdo -->
     <main class="content">
-      <section >
-        <h1>Feedbacks dos Meus Projetos</h1>
+        <section>
+            <h1>Meus Projetos</h1>
     
-        {% if feedbacks %}
-            <ul class="feedback-lista">
-                {% for feedback in feedbacks %}
-                    <li class="feedback-item">
-                        <p><strong>Projeto:</strong> {{ feedback.projeto.titulo }}</p>
-                        <p><strong>Cliente:</strong> {{ feedback.cliente.nome }}</p>
-                        <p><strong>Nota:</strong> {{ feedback.nota }}</p>
-                        <p><strong>Comentário:</strong> {{ feedback.comentario }}</p>
+            {% if projetos %}
+                <ul class="projetos-lista">
+                    {% for projeto in projetos %}
+                    <li class="projeto-item">
+                        <h2>{{ projeto.titulo }}</h2>
+                        <p>{{ projeto.descricao }}</p>
+                        <p><strong>Status:</strong> {{ projeto.get_status_display }}</p>
                     </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>Sem feedbacks nos seus projetos ainda.</p>
-        {% endif %}
-    </section>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>Você ainda não cadastrou nenhum projeto.</p>
+            {% endif %}
+        </section>
         
     </main>
   </div>
