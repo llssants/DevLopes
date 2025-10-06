@@ -11,9 +11,37 @@ from django.db.models import Q
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from .models import Usuario, Tecnologia, Projeto, Reuniao, ProgressoAluno, Feedback
+import urllib.request
+
 class Perfil(View):
     def get(self, request):
-        return render(request, 'perfil.html')
+        usuario_id = request.session.get('usuario_id')
+        if not usuario_id:
+            # Usuário não logado, redireciona para login
+            return redirect('login')
+        
+        try:
+            usuario = Usuario.objects.get(pk=usuario_id)
+        except Usuario.DoesNotExist:
+            # Se não achar o usuário na base (possível problema na sessão)
+            return redirect('login')
+
+        if usuario.tipo_usuario == 'aluno':
+            projetos = Projeto.objects.filter(aluno=usuario)
+            return render(request, 'perfil.html', {
+                'aluno': usuario,
+                'projetos': projetos,
+            })
+        elif usuario.tipo_usuario == 'cliente':
+            projetos = Projeto.objects.filter(cliente=usuario)
+            return render(request, 'perfil_cliente.html', {
+                'cliente': usuario,
+                'projetos': projetos,
+            })
+        else:
+            # Caso algum outro tipo (se existir)
+            return redirect('login')
+
 # ==============================
 # AUTENTICAÇÃO (Login, Logout, Cadastro)
 # ==============================
@@ -171,10 +199,14 @@ def meus_projetos(request):
 
 
 def pegar_projeto(request, projeto_id):
-    if not request.user.is_authenticated:
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
         return redirect('login')
-
-    usuario = Usuario.objects.get(pk=request.user.pk)
+    
+    try:
+        usuario = Usuario.objects.get(pk=usuario_id)
+    except Usuario.DoesNotExist:
+        return redirect('login')
 
     if usuario.tipo_usuario != 'aluno':
         messages.error(request, "Apenas alunos podem pegar projetos.")
@@ -182,22 +214,24 @@ def pegar_projeto(request, projeto_id):
 
     projeto = get_object_or_404(Projeto, pk=projeto_id)
     
-    # Atualiza o projeto com o aluno e altera o status para 'andamento'
     projeto.aluno = usuario
-    projeto.status = 'andamento'  # <-- aqui você muda o status
+    projeto.status = 'andamento'
     projeto.save()
 
     messages.success(request, f'Você pegou o projeto: {projeto.titulo}')
-    return redirect('projetos')  # ou a URL que preferir
+    return redirect('projetos')
 
 
 
 def meus_trabalhos(request):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        return redirect('login')
+
     try:
-        usuario = Usuario.objects.get(pk=request.user.pk)
+        usuario = Usuario.objects.get(pk=usuario_id)
     except Usuario.DoesNotExist:
-        # Se não encontrar, talvez redirecione ou exiba erro
-        return redirect('alguma_view_de_erro')
+        return redirect('login')
 
     projetos = Projeto.objects.filter(aluno=usuario)
     return render(request, 'meus_trabalhos.html', {'projetos': projetos})
@@ -288,36 +322,39 @@ def feedbacks_todos(request):
     feedbacks = Feedback.objects.all().order_by('-id')
     return render(request, 'feedbacks_geral.html', {'feedbacks': feedbacks})
 
-def progresso_aluno(request):
-    username = 'usuario-github'
-    repo = 'repositorio'
-
-    # Pega commits
+def buscar_progresso_github(username, repo):
+    # Buscar commits
     commits_url = f'https://api.github.com/repos/{username}/{repo}/commits'
-    commits_resp = requests.get(commits_url)
-    commits = commits_resp.json()
+    with urllib.request.urlopen(commits_url) as response:
+        commits = json.loads(response.read().decode('utf-8'))
 
-    # Pega linguagens
+    # Buscar linguagens
     langs_url = f'https://api.github.com/repos/{username}/{repo}/languages'
-    langs_resp = requests.get(langs_url)
-    linguagens = langs_resp.json()
+    with urllib.request.urlopen(langs_url) as response:
+        linguagens = json.loads(response.read().decode('utf-8'))
 
     dias_com_commit = set()
     for commit in commits:
-        data = commit['commit']['author']['date'][:10]  # 'YYYY-MM-DD'
+        data = commit['commit']['author']['date'][:10]
         dias_com_commit.add(data)
 
-    # Suponha que as notas estão fixas ou em banco
-    notas = {
-        "Python": 8.5,
-        "JavaScript": 7.0,
-        # outras linguagens...
-    }
-
-    context = {
+    return {
         'dias_com_commit': list(dias_com_commit),
         'linguagens': linguagens,
-        'notas': notas,
+    }
+
+def progresso_aluno(request, aluno_id, projeto_id):
+    progresso = get_object_or_404(ProgressoAluno, aluno_id=aluno_id, projeto_id=projeto_id)
+    github_data = buscar_progresso_github(username='usuario-github', repo='repositorio')
+
+    context = {
+        'progresso': progresso,
+        'dias_com_commit': github_data['dias_com_commit'],
+        'linguagens': github_data['linguagens'],
+        'notas': {
+            "Python": 8.5,
+            "JavaScript": 7.0,
+        },
     }
 
     return render(request, 'progresso_aluno.html', context)

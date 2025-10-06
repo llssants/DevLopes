@@ -17,7 +17,13 @@
         <li><a href="#">Reuniões</a></li>
         <li><a href="{% url 'chat' %}">Mensagens</a></li>
         <li><a href="{% url 'trabalhos' %}">Meus trabalhos</a></li>
-        <li><a href="">Meu Progresso</a></li>
+<li>
+  {% if aluno and projetos %}
+    <a href="{% url 'progresso_aluno' aluno.id projetos.0.id %}">Meu Progresso</a>
+  {% else %}
+    <span>Meu Progresso (indisponível)</span>
+  {% endif %}
+</li>
         <li><a href="#">Ajuda</a></li>
       </ul>
     </aside>

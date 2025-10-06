@@ -138,21 +138,20 @@ class Reuniao(models.Model):
 
 
 # ==============================
-# RF08 - ProgressoAluno (Status de evolução)
+# RF09 - ProgressoAluno (Status de evolução)
 # ==============================
+class ProgressoAluno(models.Model):
+    aluno = models.ForeignKey(
+        Usuario,
+        on_delete=models.CASCADE,
+        limit_choices_to={'tipo_usuario': 'aluno'}
+    )
+    projeto = models.ForeignKey(Projeto, on_delete=models.CASCADE)
+    progresso = models.FloatField(default=0)  # porcentagem concluída
+    commits = models.IntegerField(default=0)  # quantidade de commits (GitHub, opcional)
+    linguagens = models.JSONField(blank=True, null=True)  # armazena linguagens usadas
+    atualizado_em = models.DateTimeField(auto_now=True)
 
-def progresso_aluno(request, aluno_id, projeto_id):
-    # Pega o progresso salvo no banco
-    progresso = get_object_or_404(ProgressoAluno, aluno_id=aluno_id, projeto_id=projeto_id)
+    def __str__(self):
+        return f"{self.aluno.nome} - {self.projeto.titulo} ({self.progresso}%)"
 
-    # Busca dados do GitHub (commits, linguagens) - como no exemplo anterior
-    # (Você pode extrair essa função para facilitar)
-    github_data = buscar_progresso_github(username='usuario-github', repo='repositorio')
-
-    context = {
-        'progresso': progresso,
-        'dias_com_commit': github_data['dias_com_commit'],
-        'linguagens': github_data['linguagens'],
-        # notas podem vir do progresso ou ser calculadas
-    }
-    return render(request, 'progresso_aluno.html', context)
