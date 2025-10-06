@@ -3,48 +3,46 @@ from django.views import View
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password, check_password
 from django.http import JsonResponse
-from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
 import json
-from django.http import HttpResponseRedirect
 from django.db.models import Q
-from django.urls import reverse
-from django.contrib.auth.decorators import login_required
 from .models import Usuario, Tecnologia, Projeto, Reuniao, ProgressoAluno, Feedback
 import urllib.request
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import get_user_model
+
 
 class Perfil(View):
     def get(self, request):
         usuario_id = request.session.get('usuario_id')
         if not usuario_id:
-            # Usuário não logado, redireciona para login
             return redirect('login')
         
         try:
             usuario = Usuario.objects.get(pk=usuario_id)
         except Usuario.DoesNotExist:
-            # Se não achar o usuário na base (possível problema na sessão)
             return redirect('login')
 
         if usuario.tipo_usuario == 'aluno':
             projetos = Projeto.objects.filter(aluno=usuario)
-            return render(request, 'perfil.html', {
+            # Garantir que projetos seja uma QuerySet (mesmo vazio)
+            context = {
                 'aluno': usuario,
                 'projetos': projetos,
-            })
+            }
+            return render(request, 'perfil.html', context)
+        
         elif usuario.tipo_usuario == 'cliente':
             projetos = Projeto.objects.filter(cliente=usuario)
-            return render(request, 'perfil_cliente.html', {
+            context = {
                 'cliente': usuario,
                 'projetos': projetos,
-            })
+            }
+            return render(request, 'perfil_cliente.html', context)
+        
         else:
-            # Caso algum outro tipo (se existir)
             return redirect('login')
 
-# ==============================
-# AUTENTICAÇÃO (Login, Logout, Cadastro)
-# ==============================
 
 class LoginView(View):
     def get(self, request):
@@ -66,7 +64,6 @@ class LoginView(View):
             messages.error(request, "Email ou senha inválidos.")
 
         return redirect('login')
-
 
 class CadastroView(View):
     def get(self, request):
@@ -97,15 +94,9 @@ class CadastroView(View):
         messages.success(request, "Cadastro realizado com sucesso. Faça login.")
         return redirect('index')
 
-
 def logout_view(request):
-    request.session.flush()  # limpa sessão
+    request.session.flush()
     return redirect('login')
-
-
-# ==============================
-# PÁGINAS GERAIS
-# ==============================
 
 def dashboard_view(request):
     if not request.session.get('usuario_id'):
@@ -114,15 +105,9 @@ def dashboard_view(request):
     usuario = Usuario.objects.get(id=request.session['usuario_id'])
     return render(request, 'dashboard.html', {'usuario': usuario})
 
-
 class ApresentacaoView(View):
     def get(self, request):
         return render(request, 'index.html')
-
-
-# ==============================
-# TECNOLOGIAS
-# ==============================
 
 def tecnologias(request):
     if not request.session.get('usuario_id'):
@@ -137,11 +122,9 @@ def tecnologias(request):
     }
     return render(request, 'tecnologias.html', context)
 
-
 def lista_tecnologias(request):
     tecnologias = Tecnologia.objects.all()
     return render(request, 'tecnologias.html', {'tecnologias': tecnologias})
-
 
 def registrar_tecnologia(request):
     if request.method == 'POST':
@@ -152,17 +135,20 @@ def registrar_tecnologia(request):
         return JsonResponse({'status': 'error', 'msg': 'Nome não informado'})
     return JsonResponse({'status': 'error', 'msg': 'Método inválido'})
 
-
-# ==============================
-# PROJETOS
-# ==============================
-
 def projetos(request):
     if not request.session.get('usuario_id'):
         return redirect('login')
 
     usuario = Usuario.objects.get(id=request.session['usuario_id'])
-    projetos = Projeto.objects.all()
+    
+    # Se for aluno, pega os projetos dele como aluno
+    if usuario.tipo_usuario == 'aluno':
+        projetos = Projeto.objects.filter(aluno=usuario)
+    elif usuario.tipo_usuario == 'cliente':
+        projetos = Projeto.objects.filter(cliente=usuario)
+    else:
+        projetos = Projeto.objects.none()  # vazio para outros casos
+
     tecnologias = Tecnologia.objects.all()
 
     return render(request, 'projetos.html', {
@@ -184,19 +170,17 @@ def registrar_projeto(request):
         )
         return JsonResponse({'status': 'ok', 'id': projeto.id})
 
-
 def meus_projetos(request):
     if not request.user.is_authenticated:
         return redirect('login')
 
     try:
-        usuario = Usuario.objects.get(pk=request.user.pk)  # ou get(user=request.user) se houver relação
+        usuario = Usuario.objects.get(pk=request.user.pk)
     except Usuario.DoesNotExist:
-        return redirect('login')  # ou mensagem de erro
+        return redirect('login')
 
     projetos = Projeto.objects.filter(Q(aluno=usuario) | Q(cliente=usuario))
     return render(request, 'meus_projetos.html', {'projetos': projetos})
-
 
 def pegar_projeto(request, projeto_id):
     usuario_id = request.session.get('usuario_id')
@@ -221,8 +205,6 @@ def pegar_projeto(request, projeto_id):
     messages.success(request, f'Você pegou o projeto: {projeto.titulo}')
     return redirect('projetos')
 
-
-
 def meus_trabalhos(request):
     usuario_id = request.session.get('usuario_id')
     if not usuario_id:
@@ -236,29 +218,15 @@ def meus_trabalhos(request):
     projetos = Projeto.objects.filter(aluno=usuario)
     return render(request, 'meus_trabalhos.html', {'projetos': projetos})
 
-# ==============================
-# REUNIÕES
-# ==============================
-
 def reunioes_view(request):
     if not request.session.get('usuario_id'):
         return redirect('login')
     return render(request, 'reunioes.html')
 
-
-# ==============================
-# CHAT
-# ==============================
-
 def chat_view(request):
     if not request.session.get('usuario_id'):
         return redirect('login')
     return render(request, 'chat.html')
-
-
-# ==============================
-# MEUS DADOS
-# ==============================
 
 def meusdados_view(request):
     if not request.session.get('usuario_id'):
@@ -279,13 +247,8 @@ def meusdados_view(request):
     }
     return render(request, 'meusdados.html', context)
 
-
 @require_POST
 def marcar_visualizado(request):
-    """
-    Recebe JSON: {"tipo": "reuniao"|"desempenho", "id": <int>}
-    Marca o item como visualizado=True.
-    """
     tipo = request.POST.get('tipo')
     item_id = request.POST.get('id')
 
@@ -296,21 +259,12 @@ def marcar_visualizado(request):
 
     return JsonResponse({'status': 'ok'})
 
-
-# ==============================
-# FEEDBACKS (Novo, pois estava faltando)
-# ==============================
-
 def feedbacks(request):
     if not request.user.is_authenticated:
         return redirect('login')
 
     usuario = Usuario.objects.get(pk=request.user.pk)
-
-    # Pega os projetos onde o usuário é aluno ou cliente
     meus_projetos = Projeto.objects.filter(Q(aluno=usuario) | Q(cliente=usuario))
-
-    # Feedbacks desses projetos
     feedbacks = Feedback.objects.filter(projeto__in=meus_projetos).order_by('-id')
 
     return render(request, 'feedbacks.html', {'feedbacks': feedbacks})
@@ -323,12 +277,10 @@ def feedbacks_todos(request):
     return render(request, 'feedbacks_geral.html', {'feedbacks': feedbacks})
 
 def buscar_progresso_github(username, repo):
-    # Buscar commits
     commits_url = f'https://api.github.com/repos/{username}/{repo}/commits'
     with urllib.request.urlopen(commits_url) as response:
         commits = json.loads(response.read().decode('utf-8'))
 
-    # Buscar linguagens
     langs_url = f'https://api.github.com/repos/{username}/{repo}/languages'
     with urllib.request.urlopen(langs_url) as response:
         linguagens = json.loads(response.read().decode('utf-8'))
@@ -344,12 +296,44 @@ def buscar_progresso_github(username, repo):
     }
 
 def progresso_aluno(request, aluno_id, projeto_id):
-    progresso = get_object_or_404(ProgressoAluno, aluno_id=aluno_id, projeto_id=projeto_id)
-    github_data = buscar_progresso_github(username='usuario-github', repo='repositorio')
+    progresso = None
+    projeto = None
+
+    if projeto_id != 0:
+        progresso = ProgressoAluno.objects.filter(aluno_id=aluno_id, projeto_id=projeto_id).first()
+        projeto = Projeto.objects.filter(id=projeto_id).first()
+
+    if progresso is None:
+        # Cria um objeto simples com os atributos que precisa
+        class FakeProgresso:
+            pass
+
+        progresso = FakeProgresso()
+        progresso.progresso = 0
+        progresso.commits = 0
+        progresso.linguagens = {}
+        progresso.aluno = Usuario.objects.filter(id=aluno_id).first()
+        progresso.projeto = projeto
+
+        github_data = {
+            'dias_com_commit': ['2025-10-01', '2025-10-02', '2025-10-03'],  # dados default
+            'linguagens': {'Python': 0, 'JavaScript': 0},
+        }
+    else:
+        try:
+            github_data = buscar_progresso_github(username=projeto.github_username, repo=projeto.github_repo)
+        except Exception:
+            github_data = {
+                'dias_com_commit': ['2025-10-01', '2025-10-02', '2025-10-03'],
+                'linguagens': {'Python': 0, 'JavaScript': 0},
+            }
+
+    aluno = progresso.aluno  # extrai para o contexto
 
     context = {
         'progresso': progresso,
-        'dias_com_commit': github_data['dias_com_commit'],
+        'aluno': aluno,  # agora você pode usar {{ aluno.ocupacao }} no template
+        'dias_com_commit': json.dumps(github_data['dias_com_commit']),  # enviado como string JSON
         'linguagens': github_data['linguagens'],
         'notas': {
             "Python": 8.5,
@@ -357,4 +341,38 @@ def progresso_aluno(request, aluno_id, projeto_id):
         },
     }
 
-    return render(request, 'progresso_aluno.html', context)
+    return render(request, 'progresso.html', context)
+
+User = get_user_model()
+
+@login_required  # Garante que só usuários logados acessem a view
+def reunioes_view(request):
+    aluno = request.user  # Usa o usuário autenticado
+
+    projetos = Projeto.objects.filter(aluno=aluno)  # ou ajuste o campo
+    reunioes = Reuniao.objects.filter(projeto__in=projetos).order_by('-data', '-hora')
+
+    if request.method == "POST":
+        data = request.POST.get('data')
+        hora = request.POST.get('hora')
+        projeto_id = request.POST.get('projeto')
+        plataforma = request.POST.get('plataforma')
+        link = request.POST.get('link')
+
+        if data and hora and projeto_id:
+            projeto = Projeto.objects.get(id=projeto_id)
+            Reuniao.objects.create(
+                projeto=projeto,
+                data=data,
+                hora=hora,
+                plataforma=plataforma,
+                link=link
+            )
+            return redirect('reunioes')
+
+    context = {
+        'aluno': aluno,
+        'projetos': projetos,
+        'reunioes': reunioes
+    }
+    return render(request, 'reuniao.html', context)

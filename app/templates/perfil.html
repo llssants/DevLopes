@@ -11,19 +11,23 @@
     
     <!-- Sidebar -->
     <aside class="sidebar">
-      <h2 class="logo">SUCCESS</h2>
+      <h2 class="logo">DevLopes</h2>
       <ul>
-        <li><a href="#">Perfil</a></li>
-        <li><a href="#">Reuniões</a></li>
+        <li><a href="{% url 'perfil' %}">Perfil</a></li>
+        <li><a href="{% url 'reunioes' %}">Reuniões</a></li>
         <li><a href="{% url 'chat' %}">Mensagens</a></li>
         <li><a href="{% url 'trabalhos' %}">Meus trabalhos</a></li>
-<li>
-  {% if aluno and projetos %}
-    <a href="{% url 'progresso_aluno' aluno.id projetos.0.id %}">Meu Progresso</a>
-  {% else %}
-    <span>Meu Progresso (indisponível)</span>
-  {% endif %}
-</li>
+        <li>
+          {% if aluno %}
+            {% if projetos and projetos|length > 0 %}
+              <a href="{% url 'progresso_aluno' aluno.id projetos.0.id %}">Meu Progresso</a>
+            {% else %}
+              <!-- Redireciona para uma página de progresso padrão sem projeto -->
+              <a href="{% url 'progresso_aluno' aluno.id 0 %}">Meu Progresso</a>
+            {% endif %}
+          {% endif %}
+        </li>
+        
         <li><a href="#">Ajuda</a></li>
       </ul>
     </aside>
@@ -41,11 +45,10 @@
       <section class="card perfil-card">
         <div class="perfil-info">
           <div>
-            <h3>{{ aluno.user.get_full_name }}</h3>
-            <p><b>Email:</b> {{ aluno.user.email }}</p>
+            <h3>{{ aluno.nome }}</h3>
+            <p><b>Ocupação:</b> {{ aluno.tipo_usuario }}</p>
             <p><b>Telefone:</b> {{ aluno.telefone }}</p>
             <p><b>Cidade:</b> {{ aluno.cidade }}</p>
-            <p><b>Nascimento:</b> {{ aluno.data_nascimento }}</p>
           </div>
         </div>
       </section>

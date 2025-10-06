@@ -25,6 +25,7 @@ urlpatterns = [
     path('pegar-projeto/<int:projeto_id>/', pegar_projeto, name='pegar_projeto'),
     path('trabalhos/', meus_trabalhos, name='trabalhos'),
     path('progresso/<int:aluno_id>/<int:projeto_id>/', progresso_aluno, name='progresso_aluno'),
+    path('reunioes/', reunioes_view, name='reunioes'),
 
 ]
 

@@ -1,131 +1,203 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8" />
-    <title>Progresso do Aluno</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        .calendar {
-            display: flex;
-            flex-wrap: wrap;
-            max-width: 350px;
-            gap: 5px;
-        }
-        .day {
-            width: 40px;
-            height: 40px;
-            line-height: 40px;
-            text-align: center;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        .day.active {
-            background-color: #4caf50;
-            color: white;
-            font-weight: bold;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Meu Progresso</title>
+  <link rel="stylesheet" href="{% static 'progresso.css' %}">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f2f4fa;
+    }
+
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+
+    .sidebar {
+      width: 240px;
+      background: #180a57;
+      color: white;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar .logo {
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .sidebar ul li {
+      margin: 15px 0;
+    }
+
+    .sidebar ul li a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      transition: 0.3s;
+    }
+
+    .sidebar ul li a:hover {
+      color: #ffd369;
+    }
+
+    .content {
+      flex: 1;
+      padding: 30px;
+      overflow-y: auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header input {
+      padding: 8px 12px;
+      border-radius: 20px;
+      border: 1px solid #ccc;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .calendario-card {
+      text-align: center;
+    }
+
+    #calendario {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+      margin-top: 15px;
+    }
+
+    #calendario div {
+      padding: 10px;
+      border-radius: 6px;
+      background: #eee;
+      min-height: 40px;
+      text-align: center;
+      line-height: 20px;
+    }
+
+    #calendario .hoje {
+      background: #16075d;
+      color: white;
+      font-weight: bold;
+    }
+
+    #calendario .evento {
+      background: #428dc6;
+      color: white;
+    }
+  </style>
 </head>
 <body>
-    <h1>Progresso do Aluno</h1>
+  <div class="container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <h2 class="logo">DevLopes</h2>
+        <ul>
+          <li><a href="{% url 'perfil' %}">Perfil</a></li>
+          <li><a href="{% url 'perfil' %}">Reuniões</a></li>
+          <li><a href="{% url 'chat' %}">Mensagens</a></li>
+          <li><a href="{% url 'trabalhos' %}">Meus trabalhos</a></li>
+          <li>
+            {% if aluno %}
+              {% if projetos and projetos|length > 0 %}
+                <a href="{% url 'progresso_aluno' aluno.id projetos.0.id %}">Meu Progresso</a>
+              {% else %}
+                <!-- Redireciona para uma página de progresso padrão sem projeto -->
+                <a href="{% url 'progresso_aluno' aluno.id 0 %}">Meu Progresso</a>
+              {% endif %}
+            {% endif %}
+          </li>
+          
+          <li><a href="#">Ajuda</a></li>
+        </ul>
+    </aside>
 
-    <h2>Calendário de Desenvolvimento</h2>
-    <div class="calendar" id="calendar"></div>
+    <!-- Conteúdo -->
+    <main class="content">
 
-    <h2>Gráfico de Linguagens</h2>
-    <canvas id="langChart" width="400" height="200"></canvas>
+      <!-- Header -->
+      <header>
+        <h2>Meu Progresso</h2>
+      </header>
 
-    <script>
-        // Aqui estamos lendo as variáveis JSON passadas do Django e convertendo para objetos JS
-        const linguagens = JSON.parse('{{ linguagens|escapejs }}');
-        const diasComCommit = JSON.parse('{{ dias_com_commit|escapejs }}');
+      <!-- Calendário -->
+      <section class="card calendario-card">
+        <h3>Calendário</h3>
+        <div id="calendario"></div>
+      </section>
 
-        // Função para montar o calendário
-        function montarCalendario(dias) {
-            const calendarDiv = document.getElementById('calendar');
-            calendarDiv.innerHTML = '';
+      <!-- Gráfico de Linguagens -->
+      <section class="card projetos-card">
+        <h3>Gráfico de Linguagens</h3>
+        <canvas id="langChart" width="400" height="200"></canvas>
+      </section>
 
-            const hoje = new Date();
-            const ano = hoje.getFullYear();
-            const mes = hoje.getMonth();  // 0-11
+    </main>
+  </div>
 
-            const diasNoMes = new Date(ano, mes + 1, 0).getDate();
+  <script>
+    const diasComCommit = JSON.parse('{{ dias_com_commit|safe|escapejs }}');
 
-            for(let dia = 1; dia <= diasNoMes; dia++) {
-                const diaStr = `${ano}-${String(mes + 1).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;
-                const div = document.createElement('div');
-                div.classList.add('day');
-                div.textContent = dia;
+    document.addEventListener("DOMContentLoaded", function () {
+      const calendario = document.getElementById("calendario");
+      const hoje = new Date();
 
-                if(dias.includes(diaStr)) {
-                    div.classList.add('active');
-                }
-                calendarDiv.appendChild(div);
-            }
+      const ano = hoje.getFullYear();
+      const mes = hoje.getMonth();
+      const primeiroDia = new Date(ano, mes, 1);
+      const ultimoDia = new Date(ano, mes + 1, 0);
+
+      const diasSemana = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+      diasSemana.forEach(d => {
+        const div = document.createElement("div");
+        div.innerText = d;
+        div.style.fontWeight = "bold";
+        calendario.appendChild(div);
+      });
+
+      for (let i = 0; i < primeiroDia.getDay(); i++) {
+        calendario.appendChild(document.createElement("div"));
+      }
+
+      for (let d = 1; d <= ultimoDia.getDate(); d++) {
+        const data = new Date(ano, mes, d);
+        const div = document.createElement("div");
+        div.innerText = d;
+
+        if (data.toDateString() === hoje.toDateString()) {
+          div.classList.add("hoje");
         }
 
-        montarCalendario(diasComCommit);
+        const dataFormatada = `${ano}-${(mes + 1).toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
+        if (diasComCommit.includes(dataFormatada)) {
+          div.classList.add("evento");
+        }
 
-        // Prepara dados para o gráfico
-        const labels = Object.keys(linguagens);
-        const data = Object.values(linguagens);
-
-        // Exemplo simples de notas (fixas)
-        const notas = {
-            "Python": 8.5,
-            "JavaScript": 7.0,
-            "HTML": 9.0
-        };
-
-        const ctx = document.getElementById('langChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Linhas de código',
-                        data: data,
-                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
-                        yAxisID: 'y',
-                    },
-                    {
-                        label: 'Nota',
-                        data: labels.map(l => notas[l] || 0),
-                        type: 'line',
-                        borderColor: 'rgba(255, 99, 132, 0.7)',
-                        backgroundColor: 'rgba(255, 99, 132, 0.3)',
-                        yAxisID: 'y1',
-                        fill: false,
-                        tension: 0.1,
-                    }
-                ]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        position: 'left',
-                        title: {
-                            display: true,
-                            text: 'Linhas de código'
-                        }
-                    },
-                    y1: {
-                        beginAtZero: true,
-                        position: 'right',
-                        max: 10,
-                        title: {
-                            display: true,
-                            text: 'Nota'
-                        },
-                        grid: {
-                            drawOnChartArea: false,
-                        }
-                    }
-                }
-            }
-        });
-    </script>
+        calendario.appendChild(div);
+      }
+    });
+  </script>
 </body>
 </html>

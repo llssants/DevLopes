@@ -47,7 +47,8 @@ class Projeto(models.Model):
     titulo = models.CharField(max_length=100)
     descricao = models.TextField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='andamento')
-
+    github_username = models.CharField(max_length=100, blank=True, null=True)
+    github_repo = models.CharField(max_length=100, blank=True, null=True)
     aluno = models.ForeignKey(
         Usuario,
         on_delete=models.CASCADE,

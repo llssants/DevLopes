@@ -35,15 +35,25 @@
     
     <!-- Sidebar -->
     <aside class="sidebar">
-      <h2 class="logo">SUCCESS</h2>
-      <ul>
-        <li><a href="#">Perfil</a></li>
-        <li><a href="#">Reuniões</a></li>
-        <li><a href="{% url 'chat' %}">Mensagens</a></li>
-        <li><a href="{% url 'trabalhos' %}">Meus trabalhos</a></li>
-        <li><a href="">Meu Progresso</a></li>
-        <li><a href="#">Ajuda</a></li>
-      </ul>
+        <h2 class="logo">DevLopes</h2>
+        <ul>
+          <li><a href="{% url 'perfil' %}">Perfil</a></li>
+          <li><a href="{% url 'perfil' %}">Reuniões</a></li>
+          <li><a href="{% url 'chat' %}">Mensagens</a></li>
+          <li><a href="{% url 'trabalhos' %}">Meus trabalhos</a></li>
+          <li>
+            {% if aluno %}
+              {% if projetos and projetos|length > 0 %}
+                <a href="{% url 'progresso_aluno' aluno.id projetos.0.id %}">Meu Progresso</a>
+              {% else %}
+                <!-- Redireciona para uma página de progresso padrão sem projeto -->
+                <a href="{% url 'progresso_aluno' aluno.id 0 %}">Meu Progresso</a>
+              {% endif %}
+            {% endif %}
+          </li>
+          
+          <li><a href="#">Ajuda</a></li>
+        </ul>
     </aside>
 
     <!-- Conteúdo -->
