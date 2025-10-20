@@ -123,3 +123,8 @@ header input {
 .projetos-card li {
   margin: 10px 0;
 }
+.logo a {
+      color: inherit;       /* mantém a cor do texto normal, sem ser azul */
+      text-decoration: none; /* remove o underline */
+      cursor: default;      /* muda o cursor para padrão, não a mãozinha */
+    }

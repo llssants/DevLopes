@@ -1,80 +1,95 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
-  <title>Perfil - Success</title>
+  <title>Meus Trabalhos</title>
   <link rel="stylesheet" href="../static/perfil.css">
   <style>
-        h1 {
-            color: #333;
-        }
-        ul.projetos-list {
-            list-style: none;
-            padding: 0;
-        }
-        ul.projetos-list li {
-            background: white;
-            margin-bottom: 10px;
-            padding: 15px;
-            border-radius: 5px;
-            box-shadow: 0 0 5px #ccc;
-            width: 25vw;
-        }
-        a {
-            color: #0066cc;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
+    h1 {
+      color: #333;
+    }
+
+    ul.projetos-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    ul.projetos-list li {
+      background: white;
+      margin-bottom: 10px;
+      padding: 15px;
+      border-radius: 5px;
+      box-shadow: 0 0 5px #ccc;
+      width: 25vw;
+    }
+
+    a {
+      color: #0066cc;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .logo a {
+      color: inherit;
+      /* mantém a cor do texto normal, sem ser azul */
+      text-decoration: none;
+      /* remove o underline */
+      cursor: default;
+      /* muda o cursor para padrão, não a mãozinha */
+    }
   </style>
 </head>
+
 <body>
   <div class="container">
-    
+
     <!-- Sidebar -->
     <aside class="sidebar">
-        <h2 class="logo">DevLopes</h2>
-        <ul>
-          <li><a href="{% url 'perfil' %}">Perfil</a></li>
-          <li><a href="{% url 'perfil' %}">Reuniões</a></li>
-          <li><a href="{% url 'chat' %}">Mensagens</a></li>
-          <li><a href="{% url 'trabalhos' %}">Meus trabalhos</a></li>
-          <li>
-            {% if aluno %}
-              {% if projetos and projetos|length > 0 %}
-                <a href="{% url 'progresso_aluno' aluno.id projetos.0.id %}">Meu Progresso</a>
-              {% else %}
-                <!-- Redireciona para uma página de progresso padrão sem projeto -->
-                <a href="{% url 'progresso_aluno' aluno.id 0 %}">Meu Progresso</a>
-              {% endif %}
-            {% endif %}
-          </li>
-          
-          <li><a href="#">Ajuda</a></li>
-        </ul>
+      <h2 class="logo"><a href="{% url 'dashboard' %}">DevLopes</a></h2>
+      <ul>
+        <li><a href="{% url 'perfil' %}">Perfil</a></li>
+        <li><a href="{% url 'reunioes' %}">Reuniões</a></li>
+        <li><a href="{% url 'chat' %}">Mensagens</a></li>
+        <li><a href="{% url 'trabalhos' %}">Meus trabalhos</a></li>
+        <li>
+          {% if aluno %}
+          {% if projetos and projetos|length > 0 %}
+          <a href="{% url 'progresso_aluno' aluno.id projetos.0.id %}">Meu Progresso</a>
+          {% else %}
+          <!-- Redireciona para uma página de progresso padrão sem projeto -->
+          <a href="{% url 'progresso_aluno' aluno.id 0 %}">Meu Progresso</a>
+          {% endif %}
+          {% endif %}
+        </li>
+
+        <li><a href="#">Ajuda</a></li>
+      </ul>
     </aside>
 
     <!-- Conteúdo -->
     <main class="content">
-        <h1>Meus Trabalhos</h1>
+      <h1>Meus Trabalhos</h1>
 
-        
-    {% if projetos %}
-    <ul class="projetos-list">
+
+      {% if projetos %}
+      <ul class="projetos-list">
         {% for projeto in projetos %}
-            <li>
-                <strong>{{ projeto.titulo }}</strong><br />
-                {{ projeto.descricao }}<br />
-                <a href="{{ projeto.link }}" target="_blank">Ver projeto</a>
-            </li>
+        <li>
+          <strong>{{ projeto.titulo }}</strong><br />
+          {{ projeto.descricao }}<br />
+          <a href="{{ projeto.link }}" target="_blank">Ver projeto</a>
+        </li>
         {% endfor %}
-    </ul>
-{% else %}
-    <p>Você ainda não possui projetos cadastrados.</p>
-{% endif %}
-        
+      </ul>
+      {% else %}
+      <p>Você ainda não possui projetos cadastrados.</p>
+      {% endif %}
+
 
     </main>
   </div>

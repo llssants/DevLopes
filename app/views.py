@@ -76,7 +76,9 @@ class CadastroView(View):
         telefone = request.POST.get('telefone')
         tipo_usuario = request.POST.get('tipo_usuario')
         cpf_cnpj = request.POST.get('cpf_cnpj')
-
+        cidade_id = request.POST.get('cidade')
+        # busca a cidade
+        cidade = cidade.objects.get(id=cidade_id) if cidade_id else None
         if Usuario.objects.filter(email=email).exists():
             messages.error(request, "Email já cadastrado.")
             return redirect('cadastro')
@@ -87,6 +89,7 @@ class CadastroView(View):
             email=email,
             senha=senha_hash,
             telefone=telefone,
+            cidade=cidade,
             tipo_usuario=tipo_usuario,
             cpf_cnpj=cpf_cnpj
         )
@@ -218,10 +221,6 @@ def meus_trabalhos(request):
     projetos = Projeto.objects.filter(aluno=usuario)
     return render(request, 'meus_trabalhos.html', {'projetos': projetos})
 
-def reunioes_view(request):
-    if not request.session.get('usuario_id'):
-        return redirect('login')
-    return render(request, 'reunioes.html')
 
 def chat_view(request):
     if not request.session.get('usuario_id'):
@@ -276,6 +275,8 @@ def feedbacks_todos(request):
     feedbacks = Feedback.objects.all().order_by('-id')
     return render(request, 'feedbacks_geral.html', {'feedbacks': feedbacks})
 
+# Progresso 
+
 def buscar_progresso_github(username, repo):
     commits_url = f'https://api.github.com/repos/{username}/{repo}/commits'
     with urllib.request.urlopen(commits_url) as response:
@@ -294,6 +295,7 @@ def buscar_progresso_github(username, repo):
         'dias_com_commit': list(dias_com_commit),
         'linguagens': linguagens,
     }
+
 
 def progresso_aluno(request, aluno_id, projeto_id):
     progresso = None
@@ -345,11 +347,18 @@ def progresso_aluno(request, aluno_id, projeto_id):
 
 User = get_user_model()
 
-@login_required  # Garante que só usuários logados acessem a view
+# Reunião
 def reunioes_view(request):
-    aluno = request.user  # Usa o usuário autenticado
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        return redirect('login')
 
-    projetos = Projeto.objects.filter(aluno=aluno)  # ou ajuste o campo
+    try:
+        usuario = Usuario.objects.get(id=usuario_id)
+    except Usuario.DoesNotExist:
+        return redirect('login')
+
+    projetos = Projeto.objects.filter(aluno=usuario)  # ou cliente, adapte se quiser
     reunioes = Reuniao.objects.filter(projeto__in=projetos).order_by('-data', '-hora')
 
     if request.method == "POST":
@@ -370,9 +379,14 @@ def reunioes_view(request):
             )
             return redirect('reunioes')
 
+    # Defina o contexto aqui, para todos os casos
     context = {
-        'aluno': aluno,
-        'projetos': projetos,
-        'reunioes': reunioes
-    }
+    'usuario': usuario,
+    'aluno': usuario,  # ← Aqui está o ajuste necessário
+    'projetos': projetos,
+    'reunioes': reunioes,
+}
+
     return render(request, 'reuniao.html', context)
+
+

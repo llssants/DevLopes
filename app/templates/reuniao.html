@@ -1,10 +1,15 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <title>Reuniões</title>
   <link rel="stylesheet" href="{% static 'progresso.css' %}">
+
+  <!-- Pikaday CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pikaday/css/pikaday.css">
+
   <style>
     body {
       margin: 0;
@@ -75,7 +80,7 @@
       border-radius: 12px;
       padding: 20px;
       margin-bottom: 20px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
 
     /* Botão flutuante */
@@ -109,7 +114,7 @@
       width: 100%;
       height: 100%;
       overflow: auto;
-      background-color: rgba(0,0,0,0.4);
+      background-color: rgba(0, 0, 0, 0.4);
     }
 
     .modal-content {
@@ -119,7 +124,7 @@
       border-radius: 12px;
       width: 90%;
       max-width: 400px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
 
     .modal-content label {
@@ -128,7 +133,8 @@
       font-weight: 500;
     }
 
-    .modal-content input, .modal-content select {
+    .modal-content input,
+    .modal-content select {
       width: 100%;
       padding: 8px;
       margin-top: 5px;
@@ -156,29 +162,41 @@
       font-size: 20px;
       cursor: pointer;
     }
+
+    .logo a {
+      color: inherit;
+      /* mantém a cor do texto normal, sem ser azul */
+      text-decoration: none;
+      /* remove o underline */
+      cursor: default;
+      /* muda o cursor para padrão, não a mãozinha */
+    }
   </style>
 </head>
+
 <body>
   <div class="container">
     <!-- Sidebar -->
     <aside class="sidebar">
-        <h2 class="logo">DevLopes</h2>
-        <ul>
-          <li><a href="{% url 'perfil' %}">Perfil</a></li>
-          <li><a href="{% url 'reunioes' %}">Reuniões</a></li>
-          <li><a href="{% url 'chat' %}">Mensagens</a></li>
-          <li><a href="{% url 'trabalhos' %}">Meus trabalhos</a></li>
-          <li>
-            {% if aluno %}
-              {% if projetos and projetos|length > 0 %}
-                <a href="{% url 'progresso_aluno' aluno.id projetos.0.id %}">Meu Progresso</a>
-              {% else %}
-                <a href="{% url 'progresso_aluno' aluno.id 0 %}">Meu Progresso</a>
-              {% endif %}
-            {% endif %}
-          </li>
-          <li><a href="#">Ajuda</a></li>
-        </ul>
+      <h2 class="logo"><a href="{% url 'dashboard' %}">DevLopes</a></h2>
+      <ul>
+        <li><a href="{% url 'perfil' %}">Perfil</a></li>
+        <li><a href="{% url 'reunioes' %}">Reuniões</a></li>
+        <li><a href="{% url 'chat' %}">Mensagens</a></li>
+        <li><a href="{% url 'trabalhos' %}">Meus trabalhos</a></li>
+        <li>
+          {% if aluno %}
+          {% if projetos and projetos|length > 0 %}
+          <a href="{% url 'progresso_aluno' aluno.id projetos.0.id %}">Meu Progresso</a>
+          {% else %}
+          <!-- Redireciona para uma página de progresso padrão sem projeto -->
+          <a href="{% url 'progresso_aluno' aluno.id 0 %}">Meu Progresso</a>
+          {% endif %}
+          {% endif %}
+        </li>
+
+        <li><a href="#">Ajuda</a></li>
+      </ul>
     </aside>
 
     <!-- Conteúdo -->
@@ -187,55 +205,73 @@
         <h2>Reuniões</h2>
       </header>
 
-      <!-- Aqui pode listar reuniões no futuro -->
       <!-- Lista de reuniões -->
-<section class="card">
-    <h3>Reuniões Agendadas</h3>
-    {% if reunioes %}
-      {% for r in reunioes %}
+      <section class="card">
+        <h3>Reuniões Agendadas</h3>
+        {% if reunioes %}
+        {% for r in reunioes %}
         <div style="margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 10px;">
           <strong>{{ r.projeto.nome }}</strong><br>
           📅 {{ r.data }} ⏰ {{ r.hora }} <br>
           🧩 {{ r.plataforma }} <br>
           🔗 <a href="{{ r.link }}" target="_blank">Acessar link</a>
         </div>
-      {% endfor %}
-    {% else %}
-      <p>Nenhuma reunião cadastrada.</p>
-    {% endif %}
-  </section>
-  
+        {% endfor %}
+        {% else %}
+        <p>Nenhuma reunião cadastrada.</p>
+        {% endif %}
+      </section>
 
       <!-- Botão flutuante -->
       <button class="add-button" onclick="abrirModal()">+</button>
 
       <!-- Modal -->
-      <form method="post">
-        {% csrf_token %}
-        <label for="data">Data:</label>
-        <input type="date" id="data" name="data" required>
-      
-        <label for="hora">Hora:</label>
-        <input type="time" id="hora" name="hora" required>
-      
-        <label for="projeto">Projeto:</label>
-        <select id="projeto" name="projeto" required>
-          {% for projeto in projetos %}
-            <option value="{{ projeto.id }}">{{ projeto.nome }}</option>
-          {% endfor %}
-        </select>
-      
-        <label for="plataforma">Plataforma:</label>
-        <input type="text" id="plataforma" name="plataforma" placeholder="Ex: Google Meet" required>
-      
-        <label for="link">Link da reunião:</label>
-        <input type="url" id="link" name="link" required>
-      
-        <button type="submit">Salvar Reunião</button>
-      </form>
-      
+      <div id="modalReuniao" class="modal">
+        <div class="modal-content">
+          <span class="close" onclick="fecharModal()">&times;</span>
+          <form method="post">
+            {% csrf_token %}
+            <label for="data">Data:</label>
+            <input type="date" id="data" name="data" required>
+
+
+            <label for="hora">Hora:</label>
+            <input type="time" id="hora" name="hora" required>
+
+            <label for="projeto">Projeto:</label>
+{% if projetos %}
+  <select id="projeto" name="projeto" required>
+    {% for projeto in projetos %}
+      <option value="{{ projeto.id }}">{{ projeto }}</option> <!-- imprime __str__ do objeto -->
+    {% endfor %}
+  </select>
+{% else %}
+  <p>Você ainda não possui projetos cadastrados.</p>
+{% endif %}
+
+
+            </select>
+
+            <label for="plataforma">Plataforma:</label>
+            <input type="text" id="plataforma" name="plataforma" placeholder="Ex: Google Meet" required>
+
+            <label for="link">Link da reunião:</label>
+            <input type="url" id="link" name="link" required>
+
+            <button type="submit">Salvar Reunião</button>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Pikaday JS -->
+  <script src="https://cdn.jsdelivr.net/npm/pikaday/pikaday.js"></script>
 
   <script>
+    const dataInput = document.getElementById('data');
+    const hoje = new Date().toLocaleDateString('pt-BR'); // Formato dd/mm/aaaa
+    dataInput.value = hoje;
     function abrirModal() {
       document.getElementById("modalReuniao").style.display = "block";
     }
@@ -244,13 +280,47 @@
       document.getElementById("modalReuniao").style.display = "none";
     }
 
-    // Fecha o modal ao clicar fora
-    window.onclick = function(event) {
+    window.onclick = function (event) {
       const modal = document.getElementById("modalReuniao");
       if (event.target === modal) {
         modal.style.display = "none";
       }
     }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      var hoje = new Date();
+
+      var picker = new Pikaday({
+        field: document.getElementById('data'),
+        format: 'YYYY-MM-DD',
+        minDate: hoje,
+        toString(date, format) {
+          const day = ('0' + date.getDate()).slice(-2);
+          const month = ('0' + (date.getMonth() + 1)).slice(-2);
+          const year = date.getFullYear();
+          return `${year}-${month}-${day}`;
+        },
+        onDraw: function () {
+          var cells = this.el.querySelectorAll('.pika-button');
+
+          cells.forEach(cell => {
+            if (!cell.dataset.day) return;
+            var cellDate = new Date(this.getViewYear(), this.getViewMonth(), cell.dataset.day);
+            if (
+              cellDate.getFullYear() === hoje.getFullYear() &&
+              cellDate.getMonth() === hoje.getMonth() &&
+              cellDate.getDate() === hoje.getDate()
+            ) {
+              cell.style.backgroundColor = '#ffd369';  // cor de destaque para hoje
+              cell.style.color = '#180a57';
+              cell.style.fontWeight = 'bold';
+              cell.style.borderRadius = '50%';
+            }
+          });
+        }
+      });
+    });
   </script>
 </body>
+
 </html>

@@ -7,6 +7,8 @@ SECRET_KEY = 'django-insecure-8l8o(-2su$6t%k424293i#x672q0$*^itfyi9r32$8j-igo7zf
 
 DEBUG = True
 
+LOGIN_URL = '/login/'
+
 ALLOWED_HOSTS = []
 
 AUTHENTICATION_BACKENDS = [

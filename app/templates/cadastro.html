@@ -1,25 +1,40 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <title>Cadastro - DevLopes</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
 </head>
+
 <body class="bg-light">
   <div class="container d-flex justify-content-center align-items-center" style="height: 100vh;">
     <div class="card p-4 shadow" style="max-width: 500px; width: 100%;">
       <h2 class="text-center mb-4">Cadastro</h2>
       {% if messages %}
-        {% for message in messages %}
-          <div class="alert alert-info">{{ message }}</div>
-        {% endfor %}
+      {% for message in messages %}
+      <div class="alert alert-info">{{ message }}</div>
+      {% endfor %}
       {% endif %}
       <form method="post">
         {% csrf_token %}
         <div class="form-group"><label>Nome</label><input type="text" name="nome" class="form-control" required></div>
-        <div class="form-group"><label>Email</label><input type="email" name="email" class="form-control" required></div>
-        <div class="form-group"><label>Senha</label><input type="password" name="senha" class="form-control" required></div>
+        <div class="form-group"><label>Email</label><input type="email" name="email" class="form-control" required>
+        </div>
+        <div class="form-group"><label>Senha</label><input type="password" name="senha" class="form-control" required>
+        </div>
         <div class="form-group"><label>Telefone</label><input type="text" name="telefone" class="form-control"></div>
+       <label for="cidade">Cidade:</label>
+<select name="cidade" id="cidade" class="form-control" required>
+  <option value="" disabled selected>Selecione a cidade</option>
+  {% for cidade in cidades %}
+    <option value="{{ cidade.id }}" {% if cidade.id == cidade_selecionada %}selected{% endif %}>
+      {{ cidade.nome }} - {{ cidade.uf }}
+    </option>
+  {% endfor %}
+</select>
+
+
         <div class="form-group">
           <label>Tipo de Usuário</label>
           <select name="tipo_usuario" class="form-control">
@@ -34,4 +49,5 @@
     </div>
   </div>
 </body>
+
 </html>
