@@ -106,8 +106,26 @@
         </ul>
 
         <hr>
-        <div class="d-flex justify-content-between align-items-center">
-          <a href="/chat/" class="btn btn-success" style="background-color: #007bff;">Iniciar conversa</a>
+        {% for projeto in projetos %}
+    {% if projeto.id %}
+        {% if usuario.id != projeto.cliente.id %}
+            <!-- Aluno pode iniciar conversa com o cliente -->
+            <a href="{% url 'iniciar_conversa' projeto.id %}" class="btn btn-primary">
+                Iniciar conversa
+            </a>
+        {% else %}
+            <!-- Cliente não pode iniciar conversa consigo mesmo -->
+            <span class="btn btn-secondary disabled">Chat indisponível</span>
+        {% endif %}
+    {% else %}
+        <span class="btn btn-secondary disabled">Projeto inválido</span>
+    {% endif %}
+{% endfor %}
+
+
+
+
+
 
           {% if usuario.tipo_usuario == 'aluno' %}
             <form method="POST" id="formPegarProjeto">

@@ -6,10 +6,14 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 import json
 from django.db.models import Q
-from .models import Usuario, Tecnologia, Projeto, Reuniao, ProgressoAluno, Feedback
+from .models import *
 import urllib.request
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
+from django.utils import timezone
+from functools import wraps
+
+
 
 
 class Perfil(View):
@@ -23,20 +27,26 @@ class Perfil(View):
         except Usuario.DoesNotExist:
             return redirect('login')
 
+        # Buscar contatos do usuário (quem ele pode conversar)
+        contatos = Contato.objects.filter(usuario1=usuario) | Contato.objects.filter(usuario2=usuario)
+
         if usuario.tipo_usuario == 'aluno':
             projetos = Projeto.objects.filter(aluno=usuario)
-            # Garantir que projetos seja uma QuerySet (mesmo vazio)
             context = {
-                'aluno': usuario,
+                'usuario': usuario,
                 'projetos': projetos,
+                'contatos': contatos,
+                'aluno': usuario,   # adiciona isso
+
             }
             return render(request, 'perfil.html', context)
         
         elif usuario.tipo_usuario == 'cliente':
             projetos = Projeto.objects.filter(cliente=usuario)
             context = {
-                'cliente': usuario,
+                'usuario': usuario,
                 'projetos': projetos,
+                'contatos': contatos,
             }
             return render(request, 'perfil_cliente.html', context)
         
@@ -64,6 +74,8 @@ class LoginView(View):
             messages.error(request, "Email ou senha inválidos.")
 
         return redirect('login')
+
+
 
 class CadastroView(View):
     def get(self, request):
@@ -143,14 +155,14 @@ def projetos(request):
         return redirect('login')
 
     usuario = Usuario.objects.get(id=request.session['usuario_id'])
-    
-    # Se for aluno, pega os projetos dele como aluno
+
+    # Filtra apenas projetos válidos
     if usuario.tipo_usuario == 'aluno':
-        projetos = Projeto.objects.filter(aluno=usuario)
+        projetos = Projeto.objects.exclude(id__isnull=True)
     elif usuario.tipo_usuario == 'cliente':
         projetos = Projeto.objects.filter(cliente=usuario)
     else:
-        projetos = Projeto.objects.none()  # vazio para outros casos
+        projetos = Projeto.objects.none()
 
     tecnologias = Tecnologia.objects.all()
 
@@ -159,6 +171,7 @@ def projetos(request):
         'projetos': projetos,
         'tecnologias': tecnologias,
     })
+
 
 
 def registrar_projeto(request):
@@ -218,10 +231,21 @@ def meus_trabalhos(request):
     except Usuario.DoesNotExist:
         return redirect('login')
 
+    # Buscar os projetos do aluno
     projetos = Projeto.objects.filter(aluno=usuario)
-    return render(request, 'meus_trabalhos.html', {'projetos': projetos})
 
+    # Buscar contatos do usuário (quem ele pode conversar)
+    contatos = Contato.objects.filter(usuario1=usuario) | Contato.objects.filter(usuario2=usuario)
 
+    context = {
+        'usuario': usuario,
+        'projetos': projetos,
+        'contatos': contatos,
+         'aluno': usuario,   # adiciona isso
+  # necessário para os links de chat no template
+    }
+
+    return render(request, 'meus_trabalhos.html', context)
 def chat_view(request):
     if not request.session.get('usuario_id'):
         return redirect('login')
@@ -390,3 +414,86 @@ def reunioes_view(request):
     return render(request, 'reuniao.html', context)
 
 
+def lista_chats(request, contato_id=None):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        return redirect('login')
+
+    usuario = Usuario.objects.get(id=usuario_id)
+
+    # Busca todos os contatos do usuário
+    contatos = Contato.objects.filter(
+        Q(usuario1=usuario) | Q(usuario2=usuario)
+    )
+
+    contato_ativo = None
+    mensagens = []
+
+    if contato_id:
+        contato_ativo = get_object_or_404(contatos, id=contato_id)
+        mensagens = contato_ativo.mensagens.order_by('enviada_em')
+
+    # Prepara a sidebar: define o outro usuário de cada contato e última mensagem
+    sidebar_contatos = []
+    for c in contatos:
+        outro = c.usuario2 if c.usuario1 == usuario else c.usuario1
+        ultima_msg_obj = c.mensagens.order_by('-enviada_em').first()
+        ultima_msg = ultima_msg_obj.texto if ultima_msg_obj else "Sem mensagens ainda"
+        tempo = ultima_msg_obj.enviada_em.strftime("%H:%M") if ultima_msg_obj else "-"
+        sidebar_contatos.append({
+            'id': c.id,
+            'nome': outro.nome,
+            'ultima_msg': ultima_msg,
+            'tempo': tempo
+        })
+
+    context = {
+        'usuario': usuario,
+        'contatos': sidebar_contatos,
+        'ativo': contato_ativo,
+        'mensagens': mensagens,
+    }
+
+    return render(request, 'chat.html', context)
+
+def enviar_mensagem(request, contato_id):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        return redirect('login')
+
+    usuario = Usuario.objects.get(id=usuario_id)
+    contato = get_object_or_404(Contato, id=contato_id)
+
+    if request.method == 'POST':
+        texto = request.POST.get('mensagem', '').strip()
+        if texto:
+            Mensagem.objects.create(
+                contato=contato,
+                autor=usuario,
+                texto=texto,
+                enviada_em=timezone.now()
+            )
+    return redirect('chat', contato_id=contato.id)
+
+
+def iniciar_contato(request, projeto_id):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        return redirect('login')
+
+    aluno = Usuario.objects.get(id=usuario_id)
+    projeto = get_object_or_404(Projeto, id=projeto_id)
+    cliente = projeto.cliente  # quem cadastrou o projeto
+
+    # Evita duplicar contato
+    contato_existente = Contato.objects.filter(
+        Q(usuario1=aluno, usuario2=cliente) | Q(usuario1=cliente, usuario2=aluno)
+    ).first()
+
+    if not contato_existente:
+        contato_existente = Contato.objects.create(
+            usuario1=aluno,
+            usuario2=cliente
+        )
+
+    return redirect('chat', contato_id=contato_existente.id)

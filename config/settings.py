@@ -8,6 +8,7 @@ SECRET_KEY = 'django-insecure-8l8o(-2su$6t%k424293i#x672q0$*^itfyi9r32$8j-igo7zf
 DEBUG = True
 
 LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/projetos/'  # após login, volta para projetos
 
 ALLOWED_HOSTS = []
 

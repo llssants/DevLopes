@@ -54,8 +54,14 @@
       <ul>
         <li><a href="{% url 'perfil' %}">Perfil</a></li>
         <li><a href="{% url 'reunioes' %}">Reuniões</a></li>
-        <li><a href="{% url 'chat' %}">Mensagens</a></li>
-        <li><a href="{% url 'trabalhos' %}">Meus trabalhos</a></li>
+<li>
+  {% if contatos %}
+    <a href="{% url 'chat' contatos.0.id %}">Mensagens</a>
+  {% else %}
+    <!-- Se não houver contato ainda, você ainda pode abrir chat com outro usuário padrão -->
+    <a href="{% url 'chat' usuario.id %}">Mensagens</a>
+  {% endif %}
+</li>        <li><a href="{% url 'trabalhos' %}">Meus trabalhos</a></li>
         <li>
           {% if aluno %}
           {% if projetos and projetos|length > 0 %}
@@ -67,8 +73,7 @@
           {% endif %}
         </li>
 
-        <li><a href="#">Ajuda</a></li>
-      </ul>
+             </ul>
     </aside>
 
     <!-- Conteúdo -->

@@ -1,5 +1,5 @@
 from django.db import models
-from django.shortcuts import render, get_object_or_404
+from django.utils import timezone
 
 
 # ==============================
@@ -157,3 +157,20 @@ class ProgressoAluno(models.Model):
         return f"{self.aluno.nome} - {self.projeto.titulo} ({self.progresso}%)"
 
 
+
+class Contato(models.Model):
+    usuario1 = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='contatos_iniciados')
+    usuario2 = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='contatos_recebidos')
+    tipo_contato = models.CharField(max_length=50, blank=True, null=True)
+    observacoes = models.TextField(blank=True, null=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    def outro_usuario(self, atual):
+        return self.usuario2 if self.usuario1 == atual else self.usuario1
+
+class Mensagem(models.Model):
+    contato = models.ForeignKey(Contato, on_delete=models.CASCADE, related_name='mensagens')
+    autor = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='mensagens_enviadas')
+    texto = models.TextField(blank=True, null=True)
+    arquivo = models.FileField(upload_to='chat_arquivos/', blank=True, null=True)
+    enviada_em = models.DateTimeField(default=timezone.now)

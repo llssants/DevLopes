@@ -182,7 +182,14 @@
       <ul>
         <li><a href="{% url 'perfil' %}">Perfil</a></li>
         <li><a href="{% url 'reunioes' %}">Reuniões</a></li>
-        <li><a href="{% url 'chat' %}">Mensagens</a></li>
+<li>
+  {% if contatos %}
+    <a href="{% url 'chat' contatos.0.id %}">Mensagens</a>
+  {% else %}
+    <!-- Se não houver contato ainda, você ainda pode abrir chat com outro usuário padrão -->
+    <a href="{% url 'chat' usuario.id %}">Mensagens</a>
+  {% endif %}
+</li>   
         <li><a href="{% url 'trabalhos' %}">Meus trabalhos</a></li>
         <li>
           {% if aluno %}
@@ -195,8 +202,7 @@
           {% endif %}
         </li>
 
-        <li><a href="#">Ajuda</a></li>
-      </ul>
+             </ul>
     </aside>
 
     <!-- Conteúdo -->
@@ -212,8 +218,9 @@
         {% for r in reunioes %}
         <div style="margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 10px;">
           <strong>{{ r.projeto.nome }}</strong><br>
-          📅 {{ r.data }} ⏰ {{ r.hora }} <br>
-          🧩 {{ r.plataforma }} <br>
+          📅 {{ r.data }} <br>
+           {{ r.hora }} <br>
+           {{ r.plataforma }} <br>
           🔗 <a href="{{ r.link }}" target="_blank">Acessar link</a>
         </div>
         {% endfor %}

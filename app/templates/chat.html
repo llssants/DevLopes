@@ -4,57 +4,72 @@
 <head>
   <meta charset="UTF-8">
   <title>Chat</title>
-  <link rel="stylesheet" href="../static/chat.css">
+  <link rel="stylesheet" href="{% static 'chat.css' %}">
+
 </head>
 <body>
   <div class="chat-container">
 
-   
     <!-- Lista de conversas -->
     <section class="chat-list">
       <header>
-        <h3>Chat</h3>
-        <input type="text" placeholder="Buscar...">
+        <a href="{% url 'perfil' %}"><h3>Chat</h3></a>
       </header>
-      <ul>
-        {% for contato in contatos %}
-          <li class="{% if contato.id == ativo.id %}ativo{% endif %}">
-            <img src="{% static 'img/avatar.png' %}" alt="foto">
-            <div>
-              <h4>{{ contato.nome }}</h4>
-              <p>{{ contato.ultima_msg|truncatechars:30 }}</p>
-            </div>
-            <span class="tempo">{{ contato.tempo }}</span>
-          </li>
-        {% endfor %}
-      </ul>
+
+ <ul>
+{% for contato in contatos %}
+  <li class="{% if ativo and contato.id == ativo.id %}ativo{% endif %}">
+    <a href="{% url 'chat' contato.id %}">
+        <img src="https://img.icons8.com/?size=100&id=77883&format=png&color=000000" alt="foto">
+      <div>
+        <h4>{{ contato.nome }}</h4>
+        <p>{{ contato.ultima_msg|truncatechars:30 }}</p>
+      </div>
+      <span class="tempo">{{ contato.tempo }}</span>
+    </a>
+  </li>
+{% endfor %}
+</ul>
+
+
     </section>
 
     <!-- Janela do chat -->
     <section class="chat-window">
       <header class="chat-header">
         <div class="user-info">
-          <img src="https://img.icons8.com/?size=100&id=77883&format=png&color=000000 alt="foto">
+          <img src="https://img.icons8.com/?size=100&id=77883&format=png&color=000000" alt="foto">
           <div>
-            <h4>{{ ativo.nome }}</h4>
+            {% if ativo %}
+              <h4>{{ outro_usuario.nome }}</h4>
+            {% endif %}
             <p>Online</p>
           </div>
         </div>
-        <button class="novo-msg">+ Nova mensagem</button>
       </header>
 
-      <div class="mensagens">
-        {% for msg in mensagens %}
-          <div class="mensagem {% if msg.autor == user %}enviada{% else %}recebida{% endif %}">
-            <p>{{ msg.texto }}</p>
-            {% if msg.arquivo %}
-              <a href="{{ msg.arquivo.url }}" class="arquivo">{{ msg.arquivo.name }}</a>
-            {% endif %}
-          </div>
-        {% endfor %}
-      </div>
+     <div class="mensagens">
+  {% for msg in mensagens %}
+    <div class="mensagem {% if msg.autor.id == usuario.id %}enviada{% else %}recebida{% endif %}">
+      
+      {% if msg.autor.id != usuario.id %}
+        <!-- Avatar do outro usuário -->
+        <img src="https://img.icons8.com/?size=100&id=77883&format=png&color=000000" alt="foto" class="avatar">
+      {% endif %}
+      
+      <p>{{ msg.texto }}</p>
+      
+      {% if msg.arquivo %}
+        <a href="{{ msg.arquivo.url }}" class="arquivo">{{ msg.arquivo.name }}</a>
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>
 
-      <form method="POST" class="input-msg">
+
+
+
+      <form method="POST" action="{% url 'enviar_mensagem' ativo.id %}" class="input-msg">
         {% csrf_token %}
         <input type="text" name="mensagem" placeholder="Digite sua mensagem...">
         <button type="submit">➤</button>

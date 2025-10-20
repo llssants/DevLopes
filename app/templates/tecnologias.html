@@ -29,20 +29,8 @@
         <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Inicio</a></li>
         <li class="nav-item"><a class="nav-link" href="{% url 'projetos' %}">Projetos</a></li>
         <li class="nav-item"><a class="nav-link" href="{% url 'tecnologias' %}">Tecnologias</a></li>
-        <li class="nav-item"><a class="nav-link" href="{% url 'feedbacks_todos' %}">Feedbacks</a></li>
-
-        <!-- Dropdown Perfil -->
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="perfilDropdown" role="button" data-toggle="dropdown"
-            aria-haspopup="true" aria-expanded="false">
-            Perfil
-          </a>
-          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="perfilDropdown">
-            <a class="dropdown-item" href="{% url 'perfil' %}">Ver mais</a>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="{% url 'logout' %}">Sair</a>
-          </div>
-        </li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'reunioes' %}">Reuniões</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Sair</a></li>
       </ul>
     </div>
   </nav>
